@@ -3,16 +3,16 @@ import pygame
 
 class Text():
 
-    def __init__(self,content:str, position:Tuple[int,int], color:Tuple[int,int,int], size:int) -> None:
+    def __init__(self,content:str, position:Tuple[int,int], color:Tuple[int,int,int], font_:pygame.font.SysFont) -> None:
         self.screen = pygame.display.get_surface()
         self.content  = content
         self.pos  = position
-        self.font_size = size
+
         self.font_color = color
-        self.font = pygame.font.SysFont('inkfree',32)
+        self.font = font_
         
     def display_text(self):
-        text_surface = self.font.render(self.content,False,(173,216,230),self.font_size)
+        text_surface = self.font.render(self.content,False,self.font_color)
         self.screen.blit(text_surface,self.pos)
         pygame.display.update()
 

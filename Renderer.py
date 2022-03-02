@@ -1,3 +1,4 @@
+from typing import Tuple
 import pygame
 import json
 import time
@@ -15,7 +16,6 @@ class Render():
         self.Star_in_use :Star = None
         self.Line_in_use :Line = None
         self.old_pos = pygame.mouse.get_pos()  
-        self.star_number = 0
 
     def create_Star_constellation(self):
         self.load_json()
@@ -24,19 +24,28 @@ class Render():
 
     def set_Star_to_use(self, index:int):
         self.Star_in_use=self.Star_list[index]
+        
 
+    def update_line_in_use(self):
+        self.Line_in_use.delete()
+        self.Line_in_use = Line(self.Star_in_use.get_pos(),pygame.mouse.get_pos())
+        self.Line_in_use.draw()
     def load_json(self):
         file = open(r".\Starfiles\Adler.json")
         data = json.load(file)
         file.close()
         content = data["constellation"][0]["constellation_name"]
-        self.Texts.append(Text(content,((pygame.display.get_window_size()[0]/2)-(len(content)/2),30),(173,216,230),30))
+        self.Texts.append(Text(content,((pygame.display.get_window_size()[0]/2)-(len(content)/2),30),(173,216,230),pygame.font.SysFont('inkfree',32)))
 
         for Stars in data:
             if(Stars[0:4]=="Star"):
                 values = data[Stars][0]
                 self.Star_list.append(Star(values["pos"],values["radius"],values["brightness"],values["active"]))
-        self.set_Star_to_use(self.star_number)
+                self.Texts.append(Text(Stars[5:],self.fromat_pos_text(values["pos"],values["radius"]),(173,216,230),pygame.font.SysFont('arial',20)))
+        self.set_Star_to_use(0)
+
+    def fromat_pos_text(self, pos:Tuple[int,int], radius:int):
+        return (pos[0]-radius/2, pos[1]-(radius+20))
 
     def repaint(self):
         #repaints all stored objects
@@ -83,12 +92,8 @@ class Render():
         pygame.display.get_surface().fill((0,0,0))
         self.repaint()
         self.Final_lines.append(self.Line_in_use.final_line(self.Star_in_use,star_to_lock))
-        self.star_number+=1
         self.Star_in_use = star_to_lock
         self.Line_in_use = Line(star_to_lock.get_pos(),pygame.mouse.get_pos())
-
-    def is_next_star(self):
-        return len(self.Star_list) > self.star_number+1
 
     def update_mouse_pos(self):
         self.old_pos = pygame.mouse.get_pos()
