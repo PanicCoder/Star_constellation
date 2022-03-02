@@ -1,32 +1,62 @@
 import pygame
-from Renderer import Render
+from Renderer import *
+
 
 pygame.init()
 Width = 1750
 Height = 1000
 screen = pygame.display.set_mode((Width,Height))
+in_Lobby = True
+Running = True
+freeze = False
 
 pygame.display.set_caption("Sternenbilder","Galaxy")
 pygame.display.set_icon(pygame.image.load(r".\Images\icon.jpg"))
 
 def main():
-    Running = True
-    freeze = False
-    pygame.display.flip()
-    clock = pygame.time.Clock()
-    #pygame.mouse.set_visible(0)
-    r = Render()
-    r.create_Star_constellation()
+    global Running
+    render_s = Game_Render()
+    render_s.create_Star_constellation(r".\Starfiles\Adler.json")
+    lobby = Game_Lobby()
+    while Running:
+        screen.fill((0,0,0))
+        pygame.display.update()
+        if in_Lobby:
+            Lobby(lobby)
+        else:
+            render_s.repaint()
+            Game(render_s)
+    pygame.quit()
 
+def Lobby(l:Game_Lobby):
+    global Running,in_Lobby
     while Running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 Running = False
-                break
+                return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    Running = False
-                    break
+                    in_Lobby = not in_Lobby
+                    return
+        l.create_lobby()
+        l.repaint()
+        
+        
+def Game(r:Game_Render):
+    global Running,freeze,in_Lobby
+    pygame.display.flip()
+    clock = pygame.time.Clock()
+    #pygame.mouse.set_visible(0)
+    while Running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                Running = False
+                return
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    in_Lobby = not in_Lobby
+                    return
                 if event.key == pygame.K_RETURN:
                     freeze = not freeze
                     r.remove_line()
@@ -48,7 +78,7 @@ def main():
             else:
                 r.update_line()
         r.update_mouse_pos()
-        clock.tick(60)   
-    pygame.quit()
+        clock.tick(60)
+
 if(__name__ == "__main__"):
     main()

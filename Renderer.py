@@ -1,13 +1,13 @@
 from typing import Tuple
 import pygame
 import json
-import time
 
 from Stars import Star
 from Lines import Line
 from Texts import Text
+from Buttons import Buttons
 
-class Render():
+class Game_Render():
     
     def __init__(self) -> None:
         self.Star_list :Star = [] 
@@ -17,10 +17,9 @@ class Render():
         self.Line_in_use :Line = None
         self.old_pos = pygame.mouse.get_pos()  
 
-    def create_Star_constellation(self):
-        self.load_json()
+    def create_Star_constellation(self,path:str):
+        self.load_json(path)
         self.Line_in_use=Line(self.Star_in_use.get_pos(),pygame.mouse.get_pos())
-        self.repaint()
 
     def set_Star_to_use(self, index:int):
         self.Star_in_use=self.Star_list[index]
@@ -30,8 +29,9 @@ class Render():
         self.Line_in_use.delete()
         self.Line_in_use = Line(self.Star_in_use.get_pos(),pygame.mouse.get_pos())
         self.Line_in_use.draw()
-    def load_json(self):
-        file = open(r".\Starfiles\Adler.json")
+
+    def load_json(self,path):
+        file = open(path)
         data = json.load(file)
         file.close()
         content = data["constellation"][0]["constellation_name"]
@@ -101,3 +101,47 @@ class Render():
     def animation(self):
         for stars in self.Star_list:
             stars.animation()
+
+class Game_Lobby():
+
+    def __init__(self) -> None:
+        self.screen  = pygame.display.get_surface()
+        self.Buttons :pygame.surface = []
+        self.Images : pygame.surface = []
+        self.old_pos = pygame.mouse.get_pos()
+    
+    def create_lobby(self):
+        self.Buttons.append(Buttons((self.screen.get_width()/2,self.screen.get_height()/2),(50,50)))
+
+    def repaint(self):
+        for buttons in self.Buttons:
+            buttons.draw()
+
+        for images in self.Images:
+            images.draw()
+
+    def check_collision(self):
+        Collisions = []
+        for buttons in self.Buttons:
+            Collisions.append(buttons.check_collision(self.old_pos))
+        
+        for element in Collisions:
+            if element[0]:
+                return element
+
+        return (False,None)
+    
+    def update_mouse_pos(self):
+        self.old_pos = pygame.mouse.get_pos()
+
+
+
+class Settings():
+
+    def __init__(self) -> None:
+        pass
+
+class Level():
+
+    def __init__(self) -> None:
+        pass
