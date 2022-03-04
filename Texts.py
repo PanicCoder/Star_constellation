@@ -24,3 +24,6 @@ class Text():
     
     def change_font(self, new_font:pygame.font.SysFont):
         self.font  = new_font
+
+    def get_size(self):
+        return self.font.size(self.content)

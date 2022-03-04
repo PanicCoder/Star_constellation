@@ -1,3 +1,4 @@
+from tkinter import Image
 from typing import Tuple
 import pygame
 import json
@@ -106,12 +107,27 @@ class Game_Lobby():
 
     def __init__(self) -> None:
         self.screen  = pygame.display.get_surface()
-        self.Buttons :pygame.surface = []
-        self.Images : pygame.surface = []
+        self.Buttons :Buttons = []
+        self.Images : Image = []
+        self.Texts :Text = []
         self.old_pos = pygame.mouse.get_pos()
     
     def create_lobby(self):
-        self.Buttons.append(Buttons((self.screen.get_width()/2,self.screen.get_height()/2),(50,50)))
+        text_size = pygame.font.SysFont("arial",100).size("Sternbilder")
+        caption = Text("Sternbilder",((self.screen.get_width()/2-text_size[0]/2,50)),pygame.Color('lightseagreen'),pygame.font.SysFont("arial",100))
+        self.Texts.append(caption)
+        self.Buttons.append(Buttons((caption.pos[0],caption.pos[1]+text_size[1]-10),(text_size[0],10),pygame.Color('firebrick4'),False))
+
+        i = 75
+        for j in range(4):
+            self.Buttons.append(Buttons((caption.pos[0]-50,caption.pos[1]+text_size[1]+i),(text_size[0]+100,125),(51, 51, 255),True,j))
+            i+=200
+
+        texts = ["Play","Continue","Level","Settings"]
+        for k in range(4):
+            text_size = pygame.font.SysFont("arial",50).size(texts[k])
+            button = self.Buttons[k+1]
+            self.Texts.append(Text(texts[k],(button.pos[0]+button.dimensions[0]/2-text_size[0]/2,button.pos[1]+button.dimensions[1]/2-text_size[1]/2),(0,0,0),pygame.font.SysFont("arial",50)))
 
     def repaint(self):
         for buttons in self.Buttons:
@@ -120,10 +136,16 @@ class Game_Lobby():
         for images in self.Images:
             images.draw()
 
+        for text in self.Texts:
+            text.display_text()
+        
+        
+
     def check_collision(self):
         Collisions = []
         for buttons in self.Buttons:
-            Collisions.append(buttons.check_collision(self.old_pos))
+            if buttons.reactive:
+                Collisions.append(buttons.check_collision(self.old_pos))
         
         for element in Collisions:
             if element[0]:
@@ -133,6 +155,8 @@ class Game_Lobby():
     
     def update_mouse_pos(self):
         self.old_pos = pygame.mouse.get_pos()
+
+    
 
 
 

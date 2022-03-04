@@ -3,15 +3,18 @@ import pygame
 
 class Buttons():
 
-    def __init__(self, pos_:Tuple[int,int], dimensions_:Tuple[int,int]) -> None:
+    def __init__(self, pos_:Tuple[int,int], dimensions_:Tuple[int,int], color_, reactive_:bool, action_:int or None=None) -> None:
 
         #X and Y Position on the surface
         self.pos = pos_    
         self.dimensions = dimensions_
         self.clock = pygame.time.Clock()
-        self.color = (255,0,0)
+        self.color = color_
         self.screen = pygame.display.get_surface()
-        
+        self.reactive = reactive_
+
+        #gives back the action to perform
+        self.action = action_
         #creates mask for collision detection
         self.mask = pygame.Rect(self.pos[0],self.pos[1],self.dimensions[0],self.dimensions[1]) 
 
@@ -30,3 +33,6 @@ class Buttons():
 
     def get_pos(self):
         return self.pos
+
+    def get_action(self):
+        return self.action
