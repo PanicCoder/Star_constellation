@@ -1,3 +1,4 @@
+from pickle import TUPLE
 from tkinter import Image
 from typing import Tuple
 import pygame
@@ -7,6 +8,7 @@ from Stars import Star
 from Lines import Line
 from Texts import Text
 from Buttons import Buttons
+from Images import Image
 
 class Game_Render():
     
@@ -17,6 +19,8 @@ class Game_Render():
         self.Star_in_use :Star = None
         self.Line_in_use :Line = None
         self.old_pos = pygame.mouse.get_pos()  
+        self.screen = pygame.display.get_surface()
+        self.old_dimensions = (self.screen.get_width(),self.screen.get_height())
 
     def create_Star_constellation(self,path:str):
         self.load_json(path)
@@ -50,6 +54,7 @@ class Game_Render():
 
     def repaint(self):
         #repaints all stored objects
+        self.check_resize((self.screen.get_width(),self.screen.get_height()))
         for lines in self.Final_lines:
             lines.draw()
 
@@ -103,6 +108,18 @@ class Game_Render():
         for stars in self.Star_list:
             stars.animation()
 
+    def check_resize(self, new_dimensions:Tuple[int,int]):
+        flag = False
+        if self.old_dimensions[0] != new_dimensions[0] or self.old_dimensions[1] != new_dimensions[1]:
+            self.__init__()
+            self.old_dimensions = new_dimensions
+            flag = not flag
+            self.create_Star_constellation(r".\Starfiles\Adler.json")
+
+        if flag:
+            self.repaint()
+
+    
 class Game_Lobby():
 
     def __init__(self) -> None:
@@ -111,30 +128,33 @@ class Game_Lobby():
         self.Images : Image = []
         self.Texts :Text = []
         self.old_pos = pygame.mouse.get_pos()
+        self.old_dimensions = (self.screen.get_width(),self.screen.get_height())
     
     def create_lobby(self):
         text_size = pygame.font.SysFont("arial",100).size("Sternbilder")
-        caption = Text("Sternbilder",((self.screen.get_width()/2-text_size[0]/2,50)),pygame.Color('lightseagreen'),pygame.font.SysFont("arial",100))
+        caption = Text("Sternbilder",((self.screen.get_width()/2-text_size[0]/2,50)),(194, 194, 214),pygame.font.SysFont("arial",100))
         self.Texts.append(caption)
-        self.Buttons.append(Buttons((caption.pos[0],caption.pos[1]+text_size[1]-10),(text_size[0],10),pygame.Color('firebrick4'),False))
+        self.Buttons.append(Buttons((caption.pos[0],caption.pos[1]+text_size[1]-10),(text_size[0],4),(0,0,0),False))
 
         i = 75
-        for j in range(4):
-            self.Buttons.append(Buttons((caption.pos[0]-50,caption.pos[1]+text_size[1]+i),(text_size[0]+100,125),(51, 51, 255),True,j))
+        for k in range(4):
+            self.Buttons.append(Buttons((caption.pos[0]-50,caption.pos[1]+text_size[1]+i),(text_size[0]+100,125),(121,92,174),True,k))
             i+=200
 
         texts = ["Play","Continue","Level","Settings"]
         for k in range(4):
             text_size = pygame.font.SysFont("arial",50).size(texts[k])
             button = self.Buttons[k+1]
-            self.Texts.append(Text(texts[k],(button.pos[0]+button.dimensions[0]/2-text_size[0]/2,button.pos[1]+button.dimensions[1]/2-text_size[1]/2),(0,0,0),pygame.font.SysFont("arial",50)))
+            button.add_text(Text(texts[k],(button.pos[0]+button.dimensions[0]/2-text_size[0]/2,button.pos[1]+button.dimensions[1]/2-text_size[1]/2),(0,0,0),pygame.font.SysFont("arial",50)))
+        self.Images.append(Image((0,0),pygame.image.load(r".\Images\galaxy.jpg"),(self.screen.get_width(),self.screen.get_height())))
 
     def repaint(self):
+        self.check_resize((self.screen.get_width(),self.screen.get_height()))
+        for images in self.Images:
+            images.show_image()
+
         for buttons in self.Buttons:
             buttons.draw()
-
-        for images in self.Images:
-            images.draw()
 
         for text in self.Texts:
             text.display_text()
@@ -156,9 +176,17 @@ class Game_Lobby():
     def update_mouse_pos(self):
         self.old_pos = pygame.mouse.get_pos()
 
-    
+    def check_resize(self, new_dimensions:Tuple[int,int]):
+        flag = False
+        if self.old_dimensions[0] != new_dimensions[0] or self.old_dimensions[1] != new_dimensions[1]:
+            self.__init__()
+            self.old_dimensions = new_dimensions
+            flag = not flag
+            self.create_lobby()
 
-
+        if flag:
+            self.repaint()
+        
 
 class Settings():
 

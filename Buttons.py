@@ -1,9 +1,9 @@
-from typing import Tuple
+from typing import Text, Tuple
 import pygame
 
 class Buttons():
 
-    def __init__(self, pos_:Tuple[int,int], dimensions_:Tuple[int,int], color_, reactive_:bool, action_:int or None=None) -> None:
+    def __init__(self, pos_:Tuple[int,int], dimensions_:Tuple[int,int], color_, reactive_:bool, action_:int or None=None, ) -> None:
 
         #X and Y Position on the surface
         self.pos = pos_    
@@ -12,6 +12,7 @@ class Buttons():
         self.color = color_
         self.screen = pygame.display.get_surface()
         self.reactive = reactive_
+        self.text = None
 
         #gives back the action to perform
         self.action = action_
@@ -20,6 +21,8 @@ class Buttons():
 
     def draw(self):
         pygame.draw.rect(self.screen,self.color,(self.pos,self.dimensions),0)
+        if self.text != None:
+            self.text.display_text()
         pygame.display.update()
 
     def update_color(self, color_:Tuple[int,int,int]):
@@ -30,6 +33,9 @@ class Buttons():
     
     def check_collision(self, pos:Tuple[int,int]):
         return (self.mask.collidepoint(pos[0], pos[1]),self)
+
+    def add_text(self, text_:Text):
+        self.text = text_
 
     def get_pos(self):
         return self.pos
