@@ -1,5 +1,3 @@
-from pickle import TUPLE
-from tkinter import Image
 from typing import Tuple
 import pygame
 import json
@@ -146,7 +144,8 @@ class Game_Lobby():
             text_size = pygame.font.SysFont("arial",50).size(texts[k])
             button = self.Buttons[k+1]
             button.add_text(Text(texts[k],(button.pos[0]+button.dimensions[0]/2-text_size[0]/2,button.pos[1]+button.dimensions[1]/2-text_size[1]/2),(0,0,0),pygame.font.SysFont("arial",50)))
-        self.Images.append(Image((0,0),pygame.image.load(r".\Images\galaxy.jpg"),(self.screen.get_width(),self.screen.get_height())))
+        self.Images.append(Image((0,0),pygame.image.load(r".\Images\galaxy.jpg"),(self.screen.get_width(),self.screen.get_height()),False))
+        self.Images.append(Image((50,self.screen.get_height()-150),pygame.image.load(r".\Images\Exit.png"),(125,125),True,"QUIT"))
 
     def repaint(self):
         self.check_resize((self.screen.get_width(),self.screen.get_height()))
@@ -173,6 +172,18 @@ class Game_Lobby():
 
         return (False,None)
     
+    def check_collision_images(self):
+        Collisions = []
+        for images in self.Images:
+            if images.interact:
+                Collisions.append(images.check_collision(self.old_pos))
+
+        for element in Collisions:
+            if element[0]:
+                return element
+
+        return (False,None)
+
     def update_mouse_pos(self):
         self.old_pos = pygame.mouse.get_pos()
 
@@ -186,14 +197,18 @@ class Game_Lobby():
 
         if flag:
             self.repaint()
-        
-
-class Settings():
-
-    def __init__(self) -> None:
-        pass
 
 class Level():
+
+    def __init__(self, pos_:Tuple[int,int]) -> None:
+        self.screen = pygame.display.get_surface()
+        self.Buttons:Buttons = []
+        self.Texts :Text = []
+        self.Images :Image = []
+        self.Level_Path:str = None   
+        self.pos = pos_
+
+class Settings():
 
     def __init__(self) -> None:
         pass
