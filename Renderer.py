@@ -11,7 +11,7 @@ from Interface import In_common
 
 class Game_Render():
     
-    def __init__(self) -> None:
+    def __init__(self, name:str) -> None:
         self.Star_list :Star = [] 
         self.Final_lines :Line = []
         self.Texts :Text =[]
@@ -19,7 +19,7 @@ class Game_Render():
         self.Line_in_use :Line = None
         self.old_pos = pygame.mouse.get_pos()  
         self.in_common = In_common(self)
-        self.create(r".\Starfiles\Adler.json")
+        self.create('.\\Starfiles\\'+str(name)+'.json')
 
     def create(self,path:str):
         self.load_json(path)
@@ -28,7 +28,6 @@ class Game_Render():
     def set_Star_to_use(self, index:int):
         self.Star_in_use=self.Star_list[index]
         
-
     def update_line_in_use(self):
         self.Line_in_use.delete()
         self.Line_in_use = Line(self.Star_in_use.get_pos(),pygame.mouse.get_pos())
@@ -101,7 +100,7 @@ class Game_Lobby():
     
     def create(self):
         text_size = pygame.font.SysFont("arial",100).size("Sternbilder")
-        caption = Text("Sternbilder",((self.screen.get_width()/2-text_size[0]/2,50)),(194, 194, 214),pygame.font.SysFont("arial",100))
+        caption = Text("Sternbilder",((self.screen.get_width()/2-text_size[0]/2,40)),(194, 194, 214),pygame.font.SysFont("arial",100))
         self.Texts.append(caption)
         self.Buttons.append(Buttons((caption.pos[0],caption.pos[1]+text_size[1]-10),(text_size[0],4),(0,0,0),False))
 
@@ -141,21 +140,42 @@ class Level():
         self.Texts :Text = []
         self.Images :Image = []
         self.Level_Path:str = None  
+        self.old_pos = pygame.mouse.get_pos()  
         self.in_common = In_common(self) 
         self.create()
 
     def create(self):
         text_size = pygame.font.SysFont("arial",100).size("Level")
-        caption = Text("Level",((self.screen.get_width()/2-text_size[0]/2,50)),(194, 194, 214),pygame.font.SysFont("arial",100))
+        caption = Text("Level",((self.screen.get_width()/2-text_size[0]/2,40)),(194, 194, 214),pygame.font.SysFont("arial",100))
         self.Texts.append(caption)
         self.Buttons.append(Buttons((caption.pos[0],caption.pos[1]+text_size[1]-10),(text_size[0],4),(0,0,0),False))
-        self.Images.append(Image((0,0),pygame.image.load(r".\Images\galaxy.jpg"),(self.screen.get_width(),self.screen.get_height()),False))
+        self.Images.append(Image((0,0),pygame.image.load(r".\Images\Level.png"),(self.screen.get_width(),self.screen.get_height()),False))
+        self.Images.append(Image((50,self.screen.get_height()-150),pygame.image.load(r".\Images\Exit.png"),(125,125),True,"QUIT"))
+
+        i = 75
+        for k in range(5):
+            self.Buttons.append(Buttons((caption.pos[0]-250,caption.pos[1]+text_size[1]+i),(text_size[0]+500,125),(7,45,99),True,k))
+            i+=135
+        texts = ["Level_1:Adler","Level_2:Andromeda","Level_3:Becher","Level_4:Bootes","Level_5:Cassiopeia"]
+        for k in range(5):
+            text_size = pygame.font.SysFont("arial",50).size(texts[k])
+            button = self.Buttons[k+1]
+            button.add_text(Text(texts[k],(button.pos[0]+button.dimensions[0]/2-text_size[0]/2,button.pos[1]+button.dimensions[1]/2-text_size[1]/2),(0,0,0),pygame.font.SysFont("arial",50)))
 
     def repaint(self):
         self.in_common.repaint([self.Images,self.Buttons,self.Texts])
     
     def check_resize(self, new_dimensions:tuple[int,int]):
         self.in_common.check_resize(new_dimensions)
+    
+    def update_mouse_pos(self):
+        self.old_pos = pygame.mouse.get_pos()
+
+    def check_collision(self):
+        return self.in_common.check_collision(self.Buttons,self.old_pos)
+    
+    def check_collision_images(self):
+        return self.in_common.check_collision(self.Images,self.old_pos)
 
 class Settings():
 

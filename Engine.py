@@ -10,10 +10,13 @@ class Engine():
 
         #Current status of the game: Play,Continue,Level,Settings,Quit
         self.Status = [False,False,False,False,False]
+        self.Level_names = ["Adler","Andromeda","Becher","Bootes","Cassiopeia"]
+        self.level_name = self.Level_names[0]
         self.Running = True
         self.freeze = False
+        self.return_flag = False
         self.fullscreen = False
-        self.r = Game_Render()
+        self.r = Game_Render(self.level_name)
         self.l = Game_Lobby()
         self.level = Level()
 
@@ -57,15 +60,59 @@ class Engine():
                         self.r.update_line_in_use()
                         self.r.repaint()
         return False
-                
+
+    def button_reaction(self,object,color:tuple[int,int,int],color_update:tuple[int,int,int]):
+        selected_button = None
+        collision = object.check_collision()
+        if collision[0] and collision[1]!=selected_button:
+            selected_button = collision[1]   
+            selected_button.update_color(color_update)
+            selected_button.draw()
+            pygame.time.wait(10)
+
+        if selected_button!=None:
+            if not selected_button.check_collision(pygame.mouse.get_pos())[0]:
+                selected_button.update_color(color)
+                selected_button.draw()
+                selected_button = None
+                pygame.time.wait(10)
+        
+        collision_images = object.check_collision_images()
+        if collision_images[0] and pygame.mouse.get_pressed()[0]:
+            if collision_images[1].action == "QUIT":
+                self.Running = False
+                return True
+        if collision[0] and pygame.mouse.get_pressed()[0] and not self.return_flag:
+            if type(object) == Game_Lobby: 
+                self.Status[collision[1].get_action()] = not self.Status[collision[1].get_action()]
+                collision[1].update_color(color)
+                return True
+
+            elif type(object) == Level:
+                self.level_name = self.Level_names[collision[1].get_action()]
+                collision[1].update_color(color)
+                self.return_flag = True
+                return True
+
+        if self.return_flag and not pygame.mouse.get_pressed()[0]:
+            self.return_flag = False
+
+        self.update_mouse()
+        return False
+    
+    def update_mouse(self):
+        self.l.update_mouse_pos()
+        self.level.update_mouse_pos()
+        self.r.update_mouse_pos()
+
     def Loop(self):
         while self.Running:
             self.screen.fill((0,0,0))
             pygame.display.update()
-
+            self.update_mouse()
             if self.Status[0]:
                 del self.r
-                self.r = Game_Render()
+                self.r = Game_Render(self.level_name)
                 self.r.repaint()
                 self.Game()
                 self.Status[0],self.Status[1] = False,False
@@ -88,41 +135,17 @@ class Engine():
         pygame.quit()
 
     def Lobby(self):
-        selected_button = None
         self.l.repaint()
         while self.Running:
-            self.check_events(self.l)               
-            collision = self.l.check_collision()
-            if collision[0] and collision[1]!=selected_button:
-                selected_button = collision[1]   
-                selected_button.update_color((148, 110, 159))
-                selected_button.draw()
+            if self.button_reaction(self.l,(121,92,174),(148, 110, 159)) or self.check_events(self.l):
                 pygame.time.wait(10)
-
-            if selected_button!=None:
-                if not selected_button.check_collision(pygame.mouse.get_pos())[0]:
-                    selected_button.update_color((121,92,174))
-                    selected_button.draw()
-                    selected_button = None
-                    pygame.time.wait(10)
-
-            if collision[0] and pygame.mouse.get_pressed()[0]:
-                self.Status[collision[1].get_action()] = not self.Status[collision[1].get_action()]
                 return
-
-            collision_images = self.l.check_collision_images()
-            if collision_images[0] and pygame.mouse.get_pressed()[0]:
-                if collision_images[1].action == "QUIT":
-                    pygame.quit()
-                    self.Running = False
-                    return
-            self.l.update_mouse_pos()
-            pygame.time.wait(10)
+            
         
         
     def Game(self):
         pygame.display.flip()
-        clock = pygame.time.Clock()
+        clock = pygame.time.Clock() 
         #pygame.mouse.set_visible(0)
         exit = False
         while self.Running:
@@ -143,10 +166,9 @@ class Engine():
             clock.tick(60)
 
     def Level(self):
-        exit = False
         self.level.repaint()
         while self.Running:
-            if exit:
+            if self.check_events(self.level) or self.button_reaction(self.level,(7,45,99),(34,59,112)):
+                pygame.time.wait(10)
                 return
-            exit = self.check_events(self.level)
             

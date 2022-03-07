@@ -3,7 +3,7 @@ from Texts import Text
 
 class Buttons():
 
-    def __init__(self, pos_:tuple[int,int], dimensions_:tuple[int,int], color_, reactive_:bool, action_:int or None=None, ) -> None:
+    def __init__(self, pos_:tuple[int,int], dimensions_:tuple[int,int], color_, reactive_:bool, action_:int or None=None, filled_:int or None = 0) -> None:
 
         #X and Y Position on the surface
         self.pos = pos_    
@@ -13,6 +13,7 @@ class Buttons():
         self.screen = pygame.display.get_surface()
         self.reactive = reactive_
         self.text = None
+        self.filled = filled_
 
         #gives back the action to perform
         self.action = action_
@@ -20,7 +21,7 @@ class Buttons():
         self.mask = pygame.Rect(self.pos[0],self.pos[1],self.dimensions[0],self.dimensions[1]) 
 
     def draw(self):
-        pygame.draw.rect(self.screen,self.color,(self.pos,self.dimensions),0)
+        pygame.draw.rect(self.screen,self.color,(self.pos,self.dimensions),self.filled)
         if self.text != None:
             self.text.draw()
         pygame.display.update()
