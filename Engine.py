@@ -30,7 +30,10 @@ class Engine():
             elif event.type == pygame.VIDEORESIZE:
                 type_w = pygame.FULLSCREEN if self.fullscreen else pygame.RESIZABLE
                 self.screen = pygame.display.set_mode(event.size, type_w)
-                object.__init__()
+                if not type(object) == Game_Render:
+                    object.__init__()
+                else:
+                    object.__init__(self.level_name)
                 object.repaint()
                 pygame.display.update()
 
@@ -61,9 +64,18 @@ class Engine():
                         self.r.repaint()
         return False
 
-    def button_reaction(self,object,color:tuple[int,int,int],color_update:tuple[int,int,int]):
+    def button_reaction(self,object,color:tuple[int,int,int] or None = None,color_update:tuple[int,int,int] or None = None):
         selected_button = None
         collision = object.check_collision()
+        if type(object) == Game_Render: 
+            if pygame.mouse.get_pressed()[0] and collision[0]:
+                object.Lock_line(collision[1])
+                object.repaint()
+                pygame.time.wait(100)
+            else:
+                object.update_line()
+            self.update_mouse()
+            return
         if collision[0] and collision[1]!=selected_button:
             selected_button = collision[1]   
             selected_button.update_color(color_update)
@@ -137,7 +149,7 @@ class Engine():
     def Lobby(self):
         self.l.repaint()
         while self.Running:
-            if self.button_reaction(self.l,(121,92,174),(148, 110, 159)) or self.check_events(self.l):
+            if self.button_reaction(self.l,color=(121,92,174),color_update=(148, 110, 159)) or self.check_events(self.l):
                 pygame.time.wait(10)
                 return
             
@@ -154,21 +166,14 @@ class Engine():
             exit = self.check_events(self.r)
             if not self.freeze:
                 #index 0 checks the actual collision , index 1 gives back the collided star object
-                collision = self.r.check_collision()    
-                if pygame.mouse.get_pressed()[0] and collision[0]:
-                    self.r.Lock_line(collision[1])
-                    self.r.repaint()
-                    pygame.time.wait(100)
-                else:
-                    self.r.update_line()
-            self.r.update_mouse_pos()
+                self.button_reaction(self.r)
             pygame.time.wait(10)
             clock.tick(60)
 
     def Level(self):
         self.level.repaint()
         while self.Running:
-            if self.check_events(self.level) or self.button_reaction(self.level,(7,45,99),(34,59,112)):
+            if self.check_events(self.level) or self.button_reaction(self.level,color=(7,45,99),color_update=(34,59,112)):
                 pygame.time.wait(10)
                 return
             

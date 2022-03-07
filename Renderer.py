@@ -139,7 +139,6 @@ class Level():
         self.Buttons:Buttons = []
         self.Texts :Text = []
         self.Images :Image = []
-        self.Level_Path:str = None  
         self.old_pos = pygame.mouse.get_pos()  
         self.in_common = In_common(self) 
         self.create()
