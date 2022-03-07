@@ -1,9 +1,8 @@
-from typing import Tuple
 import pygame
 
 class Star():
 
-    def __init__(self, pos_:Tuple[int,int], radius_:int, bright:float, active_:bool) -> None:
+    def __init__(self, pos_:tuple[int,int], radius_:int, bright:float, active_:bool) -> None:
 
         #X and Y Position on the surface
         self.pos = pos_    
@@ -37,10 +36,10 @@ class Star():
         self.color = (255-(bright*255),255-(bright*255),255-(bright*255))
         self.brightness = bright
     
-    def change_pos(self, position:Tuple[int,int]):
+    def change_pos(self, position:tuple[int,int]):
         self.pos = position
     
-    def check_collision(self, pos:Tuple[int,int]):
+    def check_collision(self, pos:tuple[int,int]):
         return (self.mask.collidepoint(pos[0], pos[1]),self)
 
     def get_pos(self):

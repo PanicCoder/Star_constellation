@@ -1,4 +1,3 @@
-from typing import List, Tuple
 import pygame
 import json
 
@@ -49,7 +48,7 @@ class Game_Render():
                 self.Texts.append(Text(Stars[5:],self.fromat_pos_text(values["pos"],values["radius"]),(173,216,230),pygame.font.SysFont('arial',20)))
         self.set_Star_to_use(0)
 
-    def fromat_pos_text(self, pos:Tuple[int,int], radius:int):
+    def fromat_pos_text(self, pos:tuple[int,int], radius:int):
         return (pos[0]-radius/2, pos[1]-(radius+20))
 
     def repaint(self):
@@ -86,7 +85,7 @@ class Game_Render():
         for stars in self.Star_list:
             stars.animation()
 
-    def check_resize(self, new_dimensions:Tuple[int,int]):
+    def check_resize(self, new_dimensions:tuple[int,int]):
         self.in_common.check_resize(new_dimensions)
     
 class Game_Lobby():
@@ -131,7 +130,7 @@ class Game_Lobby():
     def update_mouse_pos(self):
         self.old_pos = pygame.mouse.get_pos()
 
-    def check_resize(self, new_dimensions:Tuple[int,int]):
+    def check_resize(self, new_dimensions:tuple[int,int]):
         self.in_common.check_resize(new_dimensions)
 
 class Level():
@@ -155,7 +154,7 @@ class Level():
     def repaint(self):
         self.in_common.repaint([self.Images,self.Buttons,self.Texts])
     
-    def check_resize(self, new_dimensions:Tuple[int,int]):
+    def check_resize(self, new_dimensions:tuple[int,int]):
         self.in_common.check_resize(new_dimensions)
 
 class Settings():

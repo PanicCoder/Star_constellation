@@ -1,10 +1,8 @@
-from code import interact
-from typing import Tuple
 import pygame
 
 class Image():
 
-    def __init__(self, pos_:Tuple[int,int], image_:pygame.image, scale_:Tuple[int,int], interact_:bool, action_:str or None=None) -> None:
+    def __init__(self, pos_:tuple[int,int], image_:pygame.image, scale_:tuple[int,int], interact_:bool, action_:str or None=None) -> None:
         self.screen = pygame.display.get_surface()
         self.pos = pos_
         self.image = image_
@@ -16,7 +14,7 @@ class Image():
     def draw(self):
         self.screen.blit(pygame.transform.scale(self.image,(self.scale)),self.pos)
 
-    def check_collision(self, pos:Tuple[int,int]):
+    def check_collision(self, pos:tuple[int,int]):
         if self.interact:
             return (self.mask.collidepoint(pos[0], pos[1]),self)
         return (False,self)

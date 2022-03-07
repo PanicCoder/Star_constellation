@@ -1,10 +1,9 @@
-from typing import Tuple
 from Stars import Star
 import pygame
 
 class Line():
 
-    def __init__(self, position_start:Tuple[int,int], position_end:Tuple[int,int]) -> None:
+    def __init__(self, position_start:tuple[int,int], position_end:tuple[int,int]) -> None:
         self.pos_start = position_start
         self.pos_end = position_end
         self.color = (173,216,230) #Lightblue
@@ -16,7 +15,7 @@ class Line():
         pygame.draw.line(self.screen,self.color,self.pos_start,self.pos_end,self.thickness)
         pygame.display.update()
     
-    def update_line(self, position_start:Tuple[int,int], position_end:Tuple[int,int]):
+    def update_line(self, position_start:tuple[int,int], position_end:tuple[int,int]):
         self.pos_start = position_start
         self.pos_end = position_end
         self.draw()
