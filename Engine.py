@@ -15,11 +15,50 @@ class Engine():
         self.fullscreen = False
         self.r = Game_Render()
         self.l = Game_Lobby()
+        self.level = Level()
 
+    def check_events(self,object):
+        object_type = type(object)
+        object.check_resize((self.screen.get_width(),self.screen.get_height()))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.Running = False
+                return
+            elif event.type == pygame.VIDEORESIZE:
+                type_w = pygame.FULLSCREEN if self.fullscreen else pygame.RESIZABLE
+                self.screen = pygame.display.set_mode(event.size, type_w)
+                object.__init__()
+                object.repaint()
+                pygame.display.update()
 
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_F11:
+                    if self.fullscreen:
+                        pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE, size = (self.Width, self.Height)))
+                    else:
+                        pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE, size = (1920, 1080)))
+                    self.fullscreen = not self.fullscreen
+
+                if event.key == pygame.K_ESCAPE:
+                    for i in range(len(self.Status)):
+                        self.Status[i] = False
+                    return True
+
+                if object_type == Game_Render:    
+                    if event.key == pygame.K_RETURN:
+                        self.freeze = not self.freeze
+                        self.r.remove_line()
+                        self.r.repaint()
+
+                    #only triggers if the keys 0-9 are pressed on the keyboard
+                    inp = event.key-49
+                    if inp >-2 and inp < len(self.r.Star_list):
+                        self.r.set_Star_to_use(inp) 
+                        self.r.update_line_in_use()
+                        self.r.repaint()
+        return False
+                
     def Loop(self):
-        self.r.create_Star_constellation(r".\Starfiles\Adler.json")
-        self.l.create_lobby()
         while self.Running:
             self.screen.fill((0,0,0))
             pygame.display.update()
@@ -27,7 +66,6 @@ class Engine():
             if self.Status[0]:
                 del self.r
                 self.r = Game_Render()
-                self.r.create_Star_constellation(r".\Starfiles\Adler.json")
                 self.r.repaint()
                 self.Game()
                 self.Status[0],self.Status[1] = False,False
@@ -53,30 +91,7 @@ class Engine():
         selected_button = None
         self.l.repaint()
         while self.Running:
-            #looks if the window got resized
-            self.l.check_resize((self.screen.get_width(),self.screen.get_height()))
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.Running = False
-                    return
-                elif event.type == pygame.VIDEORESIZE:
-                    type = pygame.FULLSCREEN if self.fullscreen else pygame.RESIZABLE
-                    self.screen = pygame.display.set_mode(event.size, type)
-                    self.l.repaint()
-                    pygame.display.update()
-
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        for i in range(len(self.Status)):
-                            self.Status[i] = False
-
-                    if event.key == pygame.K_F11:
-                        if self.fullscreen:
-                            pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE, size = (self.Width, self.Height)))
-                        else:
-                            pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE, size = (1920, 1080)))
-                        self.fullscreen = not self.fullscreen
-                            
+            self.check_events(self.l)               
             collision = self.l.check_collision()
             if collision[0] and collision[1]!=selected_button:
                 selected_button = collision[1]   
@@ -109,42 +124,11 @@ class Engine():
         pygame.display.flip()
         clock = pygame.time.Clock()
         #pygame.mouse.set_visible(0)
-        self.r.check_resize((self.screen.get_width(),self.screen.get_height()))
+        exit = False
         while self.Running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    Running = False
-                    return
-                elif event.type == pygame.VIDEORESIZE:
-                    type = pygame.FULLSCREEN if self.fullscreen else pygame.RESIZABLE
-                    self.screen = pygame.display.set_mode(event.size, type)
-                    self.r.repaint()
-                    pygame.display.update()
-
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_F11:
-                        if self.fullscreen:
-                            pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE, size = (self.Width, self.Height)))
-                        else:
-                            pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE, size = (1920, 1080)))
-                        self.fullscreen = not self.fullscreen
-
-                    if event.key == pygame.K_ESCAPE:
-                        for i in range(len(self.Status)):
-                            self.Status[i] = False
-                        return
-                        
-                    if event.key == pygame.K_RETURN:
-                        self.freeze = not self.freeze
-                        self.r.remove_line()
-                        self.r.repaint()
-                    #only triggers if the keys 0-9 are pressed on the keyboard
-                    inp = event.key-49
-                    if inp >-2 and inp < len(self.r.Star_list):
-                        self.r.set_Star_to_use(inp) 
-                        self.r.update_line_in_use()
-                        self.r.repaint() 
-
+            if exit:
+                return
+            exit = self.check_events(self.r)
             if not self.freeze:
                 #index 0 checks the actual collision , index 1 gives back the collided star object
                 collision = self.r.check_collision()    
@@ -159,4 +143,10 @@ class Engine():
             clock.tick(60)
 
     def Level(self):
-        print("Level")
+        exit = False
+        self.level.repaint()
+        while self.Running:
+            if exit:
+                return
+            exit = self.check_events(self.level)
+            

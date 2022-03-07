@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import List, Tuple
 import pygame
 import json
 
@@ -7,6 +7,41 @@ from Lines import Line
 from Texts import Text
 from Buttons import Buttons
 from Images import Image
+
+
+class In_common():
+
+    def __init__(self, object_) -> None:
+        self.object = object_
+        self.screen = pygame.display.get_surface()
+        self.old_dimensions = (self.screen.get_width(),self.screen.get_height())
+
+    def repaint(self, list_to_draw:List):
+        #repaints all stored objects
+        self.check_resize((self.screen.get_width(),self.screen.get_height()))
+        for list in list_to_draw:
+            for element in list:
+                element.draw()
+
+        pygame.display.update()
+
+    def check_resize(self, new_dimensions:Tuple[int,int]):
+        if self.old_dimensions[0] != new_dimensions[0] or self.old_dimensions[1] != new_dimensions[1]:
+            self.object.__init__()
+            self.old_dimensions = new_dimensions
+            self.object.repaint()
+
+    def check_collision(self, collion_list:List, old_pos):
+        Collisions = []
+        for stars in collion_list:
+            Collisions.append(stars.check_collision(old_pos))
+        
+        for element in Collisions:
+            if element[0]:
+                return element
+
+        return (False,None)
+
 
 class Game_Render():
     
@@ -17,10 +52,10 @@ class Game_Render():
         self.Star_in_use :Star = None
         self.Line_in_use :Line = None
         self.old_pos = pygame.mouse.get_pos()  
-        self.screen = pygame.display.get_surface()
-        self.old_dimensions = (self.screen.get_width(),self.screen.get_height())
+        self.in_common = In_common(self)
+        self.create(r".\Starfiles\Adler.json")
 
-    def create_Star_constellation(self,path:str):
+    def create(self,path:str):
         self.load_json(path)
         self.Line_in_use=Line(self.Star_in_use.get_pos(),pygame.mouse.get_pos())
 
@@ -51,19 +86,7 @@ class Game_Render():
         return (pos[0]-radius/2, pos[1]-(radius+20))
 
     def repaint(self):
-        #repaints all stored objects
-        self.check_resize((self.screen.get_width(),self.screen.get_height()))
-        for lines in self.Final_lines:
-            lines.draw()
-
-
-        for stars in self.Star_list:
-            stars.draw()
-
-        for text in self.Texts:
-            text.display_text()
-
-        pygame.display.update()
+        self.in_common.repaint([self.Final_lines,self.Star_list,self.Texts])
 
 
     def update_line(self):
@@ -75,22 +98,12 @@ class Game_Render():
             self.repaint()
         else:
             self.old_pos=pos
-
-    
+ 
     def remove_line(self):
         self.Line_in_use.delete()
 
     def check_collision(self):
-        Collisions = []
-        for stars in self.Star_list:
-            Collisions.append(stars.check_collision(self.old_pos))
-        
-        #print(Collisions)
-        for element in Collisions:
-            if element[0]:
-                return element
-
-        return (False,None)
+        return self.in_common.check_collision(self.Star_list,self.old_pos)
 
     def Lock_line(self, star_to_lock:Star):
         pygame.display.get_surface().fill((0,0,0))
@@ -98,7 +111,7 @@ class Game_Render():
         self.Final_lines.append(self.Line_in_use.final_line(self.Star_in_use,star_to_lock))
         self.Star_in_use = star_to_lock
         self.Line_in_use = Line(star_to_lock.get_pos(),pygame.mouse.get_pos())
-
+        
     def update_mouse_pos(self):
         self.old_pos = pygame.mouse.get_pos()
 
@@ -107,15 +120,7 @@ class Game_Render():
             stars.animation()
 
     def check_resize(self, new_dimensions:Tuple[int,int]):
-        flag = False
-        if self.old_dimensions[0] != new_dimensions[0] or self.old_dimensions[1] != new_dimensions[1]:
-            self.__init__()
-            self.old_dimensions = new_dimensions
-            flag = not flag
-            self.create_Star_constellation(r".\Starfiles\Adler.json")
-
-        if flag:
-            self.repaint()
+        self.in_common.check_resize(new_dimensions)
 
     
 class Game_Lobby():
@@ -126,9 +131,10 @@ class Game_Lobby():
         self.Images : Image = []
         self.Texts :Text = []
         self.old_pos = pygame.mouse.get_pos()
-        self.old_dimensions = (self.screen.get_width(),self.screen.get_height())
+        self.in_common = In_common(self)
+        self.create()
     
-    def create_lobby(self):
+    def create(self):
         text_size = pygame.font.SysFont("arial",100).size("Sternbilder")
         caption = Text("Sternbilder",((self.screen.get_width()/2-text_size[0]/2,50)),(194, 194, 214),pygame.font.SysFont("arial",100))
         self.Texts.append(caption)
@@ -148,65 +154,43 @@ class Game_Lobby():
         self.Images.append(Image((50,self.screen.get_height()-150),pygame.image.load(r".\Images\Exit.png"),(125,125),True,"QUIT"))
 
     def repaint(self):
-        self.check_resize((self.screen.get_width(),self.screen.get_height()))
-        for images in self.Images:
-            images.show_image()
-
-        for buttons in self.Buttons:
-            buttons.draw()
-
-        for text in self.Texts:
-            text.display_text()
-        
-        
+        self.in_common.repaint([self.Images,self.Buttons,self.Texts])
 
     def check_collision(self):
-        Collisions = []
-        for buttons in self.Buttons:
-            if buttons.reactive:
-                Collisions.append(buttons.check_collision(self.old_pos))
-        
-        for element in Collisions:
-            if element[0]:
-                return element
-
-        return (False,None)
+        return self.in_common.check_collision(self.Buttons,self.old_pos)
     
     def check_collision_images(self):
-        Collisions = []
-        for images in self.Images:
-            if images.interact:
-                Collisions.append(images.check_collision(self.old_pos))
-
-        for element in Collisions:
-            if element[0]:
-                return element
-
-        return (False,None)
+        return self.in_common.check_collision(self.Images,self.old_pos)
 
     def update_mouse_pos(self):
         self.old_pos = pygame.mouse.get_pos()
 
     def check_resize(self, new_dimensions:Tuple[int,int]):
-        flag = False
-        if self.old_dimensions[0] != new_dimensions[0] or self.old_dimensions[1] != new_dimensions[1]:
-            self.__init__()
-            self.old_dimensions = new_dimensions
-            flag = not flag
-            self.create_lobby()
-
-        if flag:
-            self.repaint()
+        self.in_common.check_resize(new_dimensions)
 
 class Level():
 
-    def __init__(self, pos_:Tuple[int,int]) -> None:
+    def __init__(self) -> None:
         self.screen = pygame.display.get_surface()
         self.Buttons:Buttons = []
         self.Texts :Text = []
         self.Images :Image = []
-        self.Level_Path:str = None   
-        self.pos = pos_
+        self.Level_Path:str = None  
+        self.in_common = In_common(self) 
+        self.create()
+
+    def create(self):
+        text_size = pygame.font.SysFont("arial",100).size("Level")
+        caption = Text("Level",((self.screen.get_width()/2-text_size[0]/2,50)),(194, 194, 214),pygame.font.SysFont("arial",100))
+        self.Texts.append(caption)
+        self.Buttons.append(Buttons((caption.pos[0],caption.pos[1]+text_size[1]-10),(text_size[0],4),(0,0,0),False))
+        self.Images.append(Image((0,0),pygame.image.load(r".\Images\galaxy.jpg"),(self.screen.get_width(),self.screen.get_height()),False))
+
+    def repaint(self):
+        self.in_common.repaint([self.Images,self.Buttons,self.Texts])
+    
+    def check_resize(self, new_dimensions:Tuple[int,int]):
+        self.in_common.check_resize(new_dimensions)
 
 class Settings():
 

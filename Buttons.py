@@ -22,7 +22,7 @@ class Buttons():
     def draw(self):
         pygame.draw.rect(self.screen,self.color,(self.pos,self.dimensions),0)
         if self.text != None:
-            self.text.display_text()
+            self.text.draw()
         pygame.display.update()
 
     def update_color(self, color_:Tuple[int,int,int]):

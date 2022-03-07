@@ -11,7 +11,7 @@ class Text():
         self.font_color = color
         self.font = font_
         
-    def display_text(self):
+    def draw(self):
         text_surface = self.font.render(self.content,False,self.font_color)
         self.screen.blit(text_surface,self.pos)
         pygame.display.update()

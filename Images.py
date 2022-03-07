@@ -13,8 +13,10 @@ class Image():
         self.mask =  pygame.Rect(self.pos[0],self.pos[1],self.scale[0],self.scale[1])
         self.action = action_
 
-    def show_image(self):
+    def draw(self):
         self.screen.blit(pygame.transform.scale(self.image,(self.scale)),self.pos)
 
     def check_collision(self, pos:Tuple[int,int]):
-        return (self.mask.collidepoint(pos[0], pos[1]),self)
+        if self.interact:
+            return (self.mask.collidepoint(pos[0], pos[1]),self)
+        return (False,self)
