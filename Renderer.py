@@ -11,7 +11,8 @@ from Interface import In_common
 
 class Game_Render():
     
-    def __init__(self, name:str) -> None:
+    def __init__(self, name_:str) -> None:
+        self.id = 0
         self.Star_list :Star = [] 
         self.Final_lines :Line = []
         self.Texts :Text =[]
@@ -19,7 +20,8 @@ class Game_Render():
         self.Line_in_use :Line = None
         self.old_pos = pygame.mouse.get_pos()  
         self.in_common = In_common(self)
-        self.create('.\\Starfiles\\'+str(name)+'.json')
+        self.name = name_
+        self.create('.\\Starfiles\\'+str(self.name)+'.json')
 
     def create(self,path:str):
         self.load_json(path)
@@ -91,6 +93,7 @@ class Game_Lobby():
 
     def __init__(self) -> None:
         self.screen  = pygame.display.get_surface()
+        self.id = 1
         self.Buttons :Buttons = []
         self.Images : Image = []
         self.Texts :Text = []
@@ -136,6 +139,7 @@ class Level():
 
     def __init__(self) -> None:
         self.screen = pygame.display.get_surface()
+        self.id = 2
         self.Buttons:Buttons = []
         self.Texts :Text = []
         self.Images :Image = []
@@ -155,7 +159,7 @@ class Level():
         for k in range(5):
             self.Buttons.append(Buttons((caption.pos[0]-250,caption.pos[1]+text_size[1]+i),(text_size[0]+500,125),(7,45,99),True,k))
             i+=135
-        texts = ["Level_1:Adler","Level_2:Andromeda","Level_3:Becher","Level_4:Bootes","Level_5:Cassiopeia"]
+        texts = ["Adler","Andromeda","Becher","Bootes","Cassiopeia"]
         for k in range(5):
             text_size = pygame.font.SysFont("arial",50).size(texts[k])
             button = self.Buttons[k+1]
@@ -166,7 +170,7 @@ class Level():
     
     def check_resize(self, new_dimensions:tuple[int,int]):
         self.in_common.check_resize(new_dimensions)
-    
+
     def update_mouse_pos(self):
         self.old_pos = pygame.mouse.get_pos()
 
