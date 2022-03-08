@@ -1,11 +1,13 @@
 import pygame
+from Buttons import Buttons
+from Texts import Text
+from Images import Image
 
 class In_common():
 
     def __init__(self, object_) -> None:
         self.object = object_
         self.screen = pygame.display.get_surface()
-        self.object_list = []
 
     def repaint(self, list_to_draw:list):
         #repaints all stored objects
@@ -15,10 +17,13 @@ class In_common():
 
         pygame.display.update()          
 
-    def check_collision(self, collion_list:list, old_pos):
+    def check_collision(self, collision_list:list, old_pos):
         Collisions = []
-        for stars in collion_list:
-            Collisions.append(stars.check_collision(old_pos))
+        for object in collision_list:
+            if type(object) == Buttons:
+                if not object.reactive:
+                    continue
+            Collisions.append(object.check_collision(old_pos))
         
         for element in Collisions:
             if element[0]:
@@ -26,8 +31,17 @@ class In_common():
 
         return (False,None)
 
-    def add_objects(self, object_list_:list):
-        self.object_list = object_list_
+    def create_Headline(self, caption_:str):
+        text_size = pygame.font.SysFont("arial",100).size(caption_)
+        caption = Text(caption_,((self.screen.get_width()/2-text_size[0]/2,40)),(194, 194, 214),pygame.font.SysFont("arial",100))
+        under_line = Buttons((caption.pos[0],caption.pos[1]+text_size[1]-10),(text_size[0],4),(0,0,0),False)
+        return (caption, under_line,text_size)
+
+    def create_shutdown_button(self):
+        return Image((50,self.screen.get_height()-150),pygame.image.load(r".\Images\Exit.png"),(125,125),True,"QUIT")
+
+    def set_background(self, image_path:str):
+        return Image((0,0),pygame.image.load(image_path),(self.screen.get_width(),self.screen.get_height()),False)
 
 
 

@@ -20,7 +20,8 @@ class Engine():
         self.r = Game_Render(self.level_name)
         self.l = Game_Lobby()
         self.level = Level()
-        self.object_list = [self.r,self.l,self.level]
+        self.settings = Settings()
+        self.object_list = [self.r,self.l,self.level,self.settings]
 
     def check_events(self,object):
         object_type = type(object)
@@ -38,7 +39,7 @@ class Engine():
             elif event.type == pygame.VIDEORESIZE:
                 type_w = pygame.FULLSCREEN if self.fullscreen else pygame.RESIZABLE
                 self.screen = pygame.display.set_mode(event.size, type_w)
-                if not type(object) == Game_Render:
+                if not object_type == Game_Render:
                     object.__init__()
                 else:
                     object.__init__(self.level_name)
@@ -96,12 +97,13 @@ class Engine():
                 selected_button.draw()
                 selected_button = None
                 pygame.time.wait(10)
-        
+
         collision_images = object.check_collision_images()
         if collision_images[0] and pygame.mouse.get_pressed()[0]:
             if collision_images[1].action == "QUIT":
                 self.Running = False
                 return True
+
         if collision[0] and pygame.mouse.get_pressed()[0] and not self.return_flag:
             if type(object) == Game_Lobby: 
                 self.Status[collision[1].get_action()] = not self.Status[collision[1].get_action()]
@@ -122,10 +124,9 @@ class Engine():
         return False
     
     def update_mouse(self):
-        self.l.update_mouse_pos()
-        self.level.update_mouse_pos()
-        self.r.update_mouse_pos()
-
+        for object in self.object_list:
+            object.update_mouse_pos()
+            
     def Loop(self):
         while self.Running:
             self.screen.fill((0,0,0))
@@ -149,7 +150,7 @@ class Engine():
 
             elif self.Status[3]:
                 #TODO
-                print("Settings")
+                self.Settings()
                 self.Status[3] = False
             else:
                 self.Lobby()
@@ -162,8 +163,6 @@ class Engine():
                 pygame.time.wait(10)
                 return
             
-        
-        
     def Game(self):
         pygame.display.flip()
         clock = pygame.time.Clock() 
@@ -174,7 +173,6 @@ class Engine():
                 return
             exit = self.check_events(self.r)
             if not self.freeze:
-                #index 0 checks the actual collision , index 1 gives back the collided star object
                 self.button_reaction(self.r)
             pygame.time.wait(10)
             clock.tick(60)
@@ -183,6 +181,13 @@ class Engine():
         self.level.repaint()
         while self.Running:
             if self.check_events(self.level) or self.button_reaction(self.level,color=(7,45,99),color_update=(34,59,112)):
+                pygame.time.wait(10)
+                return
+
+    def Settings(self):
+        self.settings.repaint()
+        while self.Running:
+            if self.check_events(self.settings) or self.button_reaction(self.settings,color=(7,45,99),color_update=(34,59,112)):
                 pygame.time.wait(10)
                 return
             
