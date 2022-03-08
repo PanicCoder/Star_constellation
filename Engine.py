@@ -7,6 +7,7 @@ class Engine():
         self.Width = 1750
         self.Height = 1000
         self.screen = pygame.display.set_mode((self.Width,self.Height),pygame.RESIZABLE)
+        self.old_dimensions = [pygame.display.get_window_size()]
 
         #Current status of the game: Play,Continue,Level,Settings,Quit
         self.Status = [False,False,False,False,False]
@@ -19,10 +20,17 @@ class Engine():
         self.r = Game_Render(self.level_name)
         self.l = Game_Lobby()
         self.level = Level()
+        self.object_list = [self.r,self.l,self.level]
 
     def check_events(self,object):
         object_type = type(object)
-        object.check_resize((self.screen.get_width(),self.screen.get_height()))
+        if self.old_dimensions != pygame.display.get_window_size():
+            for o in self.object_list:
+                if o.id != 0:
+                    o.__init__()
+                else:
+                    o.__init__(self.level_name)
+            self.old_dimensions = pygame.display.get_window_size()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.Running = False
@@ -98,9 +106,10 @@ class Engine():
             if type(object) == Game_Lobby: 
                 self.Status[collision[1].get_action()] = not self.Status[collision[1].get_action()]
                 collision[1].update_color(color)
+                self.return_flag = True
                 return True
 
-            elif type(object) == Level:
+            elif type(object) == Level and not self.return_flag:
                 self.level_name = self.Level_names[collision[1].get_action()]
                 collision[1].update_color(color)
                 self.return_flag = True
@@ -134,7 +143,7 @@ class Engine():
                 self.Game()
 
             elif self.Status[2]:
-                #TODO
+                #TODO add scrolling
                 self.Level()
                 self.Status[2] = False
 

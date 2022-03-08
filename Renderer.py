@@ -85,9 +85,6 @@ class Game_Render():
     def animation(self):
         for stars in self.Star_list:
             stars.animation()
-
-    def check_resize(self, new_dimensions:tuple[int,int]):
-        self.in_common.check_resize(new_dimensions)
     
 class Game_Lobby():
 
@@ -132,9 +129,6 @@ class Game_Lobby():
     def update_mouse_pos(self):
         self.old_pos = pygame.mouse.get_pos()
 
-    def check_resize(self, new_dimensions:tuple[int,int]):
-        self.in_common.check_resize(new_dimensions)
-
 class Level():
 
     def __init__(self) -> None:
@@ -167,9 +161,6 @@ class Level():
 
     def repaint(self):
         self.in_common.repaint([self.Images,self.Buttons,self.Texts])
-    
-    def check_resize(self, new_dimensions:tuple[int,int]):
-        self.in_common.check_resize(new_dimensions)
 
     def update_mouse_pos(self):
         self.old_pos = pygame.mouse.get_pos()
