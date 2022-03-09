@@ -1,3 +1,4 @@
+from matplotlib.pyplot import text
 import pygame
 from Buttons import Buttons
 from Texts import Text
@@ -42,6 +43,16 @@ class In_common():
 
     def set_background(self, image_path:str):
         return Image((0,0),pygame.image.load(image_path),(self.screen.get_width(),self.screen.get_height()),False)
+
+    def find_text_object(self,content:str,text_list:list):
+        for t in text_list:
+            if t.content == content:
+                return t
+    def find_button_by_text(self,t:str,button_list:list):
+        for button in button_list:
+            if button.text!= None:
+                if button.text.content == t:
+                    return button
 
 
 

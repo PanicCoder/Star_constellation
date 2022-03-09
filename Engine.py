@@ -18,16 +18,17 @@ class Engine():
         self.return_flag = False
         self.fullscreen = False
         self.r = Game_Render(self.level_name)
-        self.l = Game_Lobby()
+        self.l = Game_Lobby(self.level_name)
         self.level = Level()
         self.settings = Settings()
         self.object_list = [self.r,self.l,self.level,self.settings]
 
     def check_events(self,object):
+        pygame.time.wait(10)
         object_type = type(object)
         if self.old_dimensions != pygame.display.get_window_size():
             for o in self.object_list:
-                if o.id != 0:
+                if o.id != 0 and o.id !=1:
                     o.__init__()
                 else:
                     o.__init__(self.level_name)
@@ -39,7 +40,7 @@ class Engine():
             elif event.type == pygame.VIDEORESIZE:
                 type_w = pygame.FULLSCREEN if self.fullscreen else pygame.RESIZABLE
                 self.screen = pygame.display.set_mode(event.size, type_w)
-                if not object_type == Game_Render:
+                if not object_type == Game_Render and not object_type == Game_Lobby:
                     object.__init__()
                 else:
                     object.__init__(self.level_name)
@@ -74,6 +75,7 @@ class Engine():
         return False
 
     def button_reaction(self,object,color:tuple[int,int,int] or None = None,color_update:tuple[int,int,int] or None = None):
+        pygame.time.wait(10)
         selected_button = None
         collision = object.check_collision()
         if type(object) == Game_Render: 
@@ -95,6 +97,10 @@ class Engine():
             if not selected_button.check_collision(pygame.mouse.get_pos())[0]:
                 selected_button.update_color(color)
                 selected_button.draw()
+                if type(object) == Game_Lobby:
+                    t = object.get_level_text()
+                    if t != None:
+                        t.draw()
                 selected_button = None
                 pygame.time.wait(10)
 
@@ -126,11 +132,12 @@ class Engine():
     def update_mouse(self):
         for object in self.object_list:
             object.update_mouse_pos()
-            
+
     def Loop(self):
         while self.Running:
             self.screen.fill((0,0,0))
             pygame.display.update()
+            self.l.choosen_level(self.level_name)
             self.update_mouse()
             if self.Status[0]:
                 del self.r
@@ -158,10 +165,11 @@ class Engine():
 
     def Lobby(self):
         self.l.repaint()
+        
         while self.Running:
             if self.button_reaction(self.l,color=(121,92,174),color_update=(148, 110, 159)) or self.check_events(self.l):
-                pygame.time.wait(10)
                 return
+            pygame.time.wait(10)
             
     def Game(self):
         pygame.display.flip()
@@ -181,13 +189,13 @@ class Engine():
         self.level.repaint()
         while self.Running:
             if self.check_events(self.level) or self.button_reaction(self.level,color=(7,45,99),color_update=(34,59,112)):
-                pygame.time.wait(10)
                 return
+        pygame.time.wait(10)
 
     def Settings(self):
         self.settings.repaint()
         while self.Running:
             if self.check_events(self.settings) or self.button_reaction(self.settings,color=(7,45,99),color_update=(34,59,112)):
-                pygame.time.wait(10)
                 return
+            pygame.time.wait(10)
             

@@ -91,15 +91,17 @@ class Game_Render():
     
 class Game_Lobby():
 
-    def __init__(self) -> None:
+    def __init__(self,name:str) -> None:
         self.screen  = pygame.display.get_surface()
         self.id = 1
         self.Buttons :Buttons = []
         self.Images : Image = []
         self.Texts :Text = []
+        self.level_name = name
         self.old_pos = pygame.mouse.get_pos()
         self.in_common = In_common(self)
         self.create()
+        self.choosen_level(self.level_name)
     
     def create(self):
         Headlilne = self.in_common.create_Headline("Sternbilder")
@@ -120,7 +122,19 @@ class Game_Lobby():
             button.add_text(Text(texts[k],(button.pos[0]+button.dimensions[0]/2-text_size[0]/2,button.pos[1]+button.dimensions[1]/2-text_size[1]/2),(0,0,0),pygame.font.SysFont("arial",50)))
         self.Images.append(self.in_common.set_background(r".\Images\galaxy.jpg"))
         self.Images.append(self.in_common.create_shutdown_button())
+        
 
+    def choosen_level(self, level_name:str):
+        text = self.in_common.find_text_object(self.level_name,self.Texts)
+        button = self.in_common.find_button_by_text("Level",self.Buttons)
+        text_s = pygame.font.SysFont("arial",30).size(level_name)   
+        if text != None:
+            text.change_text(level_name)   
+            text.change_pos((button.pos[0]+button.dimensions[0]/2-text_s[0]/2,button.pos[1]+button.dimensions[1]-(text_s[1]+5)))
+        else:
+            self.Texts.append(Text(level_name,(button.pos[0]+button.dimensions[0]/2-text_s[0]/2,button.pos[1]+button.dimensions[1]-(text_s[1]+5)),(0,0,0),pygame.font.SysFont("arial",30)))
+        self.level_name = level_name
+        
     def repaint(self):
         self.in_common.repaint([self.Images,self.Buttons,self.Texts])
 
@@ -132,6 +146,9 @@ class Game_Lobby():
 
     def update_mouse_pos(self):
         self.old_pos = pygame.mouse.get_pos()
+
+    def get_level_text(self):
+        return self.in_common.find_text_object(self.level_name,self.Texts)
 
 class Level():
 
