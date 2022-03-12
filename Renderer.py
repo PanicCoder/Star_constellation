@@ -1,5 +1,7 @@
 import pygame
 import json
+import itertools
+import os
 
 from Stars import Star
 from Lines import Line
@@ -17,12 +19,13 @@ class Game_Render():
         self.Final_lines :Line = []
         self.Texts :Text =[]
         self.Images :Image = []
+        self.Buttons:Buttons = []
         self.Star_in_use :Star = None
         self.Line_in_use :Line = None
         self.old_pos = pygame.mouse.get_pos()  
         self.in_common = In_common(self)
         self.name = name_
-        self.create('.\\Starfiles\\'+str(self.name)+'.json')
+        self.create(os.path.join([x[0] for x in os.walk(os.getcwd())][3], str(self.name)+'.json'))
 
     def create(self,path:str):
         self.load_json(path)
@@ -40,23 +43,28 @@ class Game_Render():
         file = open(path)
         data = json.load(file)
         file.close()
+        text = str(data["Explanation_text"][0]["text"])
+        latin_name = data["Explanation_text"][0]["Latin_name"]
         content = "Sternbild: "+data["constellation"][0]["constellation_name"]
-        text_size = pygame.font.SysFont('inkfree',32).size(content)
-        self.Texts.append(Text(content,((pygame.display.get_window_size()[0]/2)-(text_size[0]/2),30),(173,216,230),pygame.font.SysFont('inkfree',32)))
+        headline = self.in_common.create_Headline(content,32,'inkfree')
+        self.Texts.append(headline[0])
+        
 
         for Stars in data:
             if(Stars[0:4]=="Star"):
                 values = data[Stars][0]
                 self.Star_list.append(Star(values["pos"],values["radius"],values["brightness"],values["active"]))
                 self.Texts.append(Text(Stars[5:],self.fromat_pos_text(values["pos"],values["radius"]),(173,216,230),pygame.font.SysFont('arial',20)))
+        dimension = (700,1700)
+        t = itertools.chain(self.Texts,self.in_common.format_text(text,dimension,30,(pygame.display.get_surface().get_width()-600,50)))
+        self.Texts = list(t)
         self.set_Star_to_use(0)
-        #self.Images.append(self.in_common.set_background(r".\Images\Game_background.png"))
 
     def fromat_pos_text(self, pos:tuple[int,int], radius:int):
         return (pos[0]-radius/2, pos[1]-(radius+20))
 
     def repaint(self):
-        self.in_common.repaint([self.Images,self.Final_lines,self.Star_list,self.Texts])
+        self.in_common.repaint([self.Images,self.Final_lines,self.Buttons,self.Star_list,self.Texts])
 
 
     def update_line(self):
@@ -104,7 +112,7 @@ class Game_Lobby():
         self.choosen_level(self.level_name)
     
     def create(self):
-        Headlilne = self.in_common.create_Headline("Sternbilder")
+        Headlilne = self.in_common.create_Headline("Sternbilder",100)
         caption = Headlilne[0]
         text_size = Headlilne[2]
         self.Texts.append(caption)
@@ -120,7 +128,7 @@ class Game_Lobby():
             text_size = pygame.font.SysFont("arial",50).size(texts[k])
             button = self.Buttons[k+1]
             button.add_text(Text(texts[k],(button.pos[0]+button.dimensions[0]/2-text_size[0]/2,button.pos[1]+button.dimensions[1]/2-text_size[1]/2),(0,0,0),pygame.font.SysFont("arial",50)))
-        self.Images.append(self.in_common.set_background(r".\Images\galaxy.jpg"))
+        self.Images.append(self.in_common.set_background(os.path.join([x[0] for x in os.walk(os.getcwd())][1], "galaxy.jpg")))
         self.Images.append(self.in_common.create_shutdown_button())
         
 
@@ -163,12 +171,12 @@ class Level():
         self.create()
 
     def create(self):
-        Headlilne = self.in_common.create_Headline("Level")
+        Headlilne = self.in_common.create_Headline("Level",100)
         caption = Headlilne[0]
         text_size = Headlilne[2]
         self.Texts.append(caption)
         self.Buttons.append(Headlilne[1])
-        self.Images.append(self.in_common.set_background(r".\Images\Level.png"))
+        self.Images.append(self.in_common.set_background(os.path.join([x[0] for x in os.walk(os.getcwd())][1], "Level.png")))
         self.Images.append(self.in_common.create_shutdown_button())
 
         i = 75
@@ -206,7 +214,7 @@ class Settings():
         self.create()
 
     def create(self):
-        Headlilne = self.in_common.create_Headline("Settings")
+        Headlilne = self.in_common.create_Headline("Settings",100)
         self.Texts.append(Headlilne[0])
         self.Buttons.append(Headlilne[1])
         self.Images.append(self.in_common.create_shutdown_button())

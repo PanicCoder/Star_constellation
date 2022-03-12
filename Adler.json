@@ -1,0 +1,87 @@
+{
+    "constellation": [
+    {
+        "constellation_name":"Adler",
+        "constellation_id":1
+    }
+    ],
+    
+    "Star_1": [
+        {
+            "pos":[310,400],
+            "radius":12,
+            "brightness":0.25,
+            "active":1
+        }
+    ],
+    "Star_2": [
+        {
+            "pos":[350,270],
+            "radius":40,
+            "brightness":0,
+            "active":1
+        }
+    ],
+    "Star_3": [
+        {
+            "pos":[420,140],
+            "radius":30,
+            "brightness":0.35,
+            "active":1
+        }
+    ],
+    "Star_4": [
+        {
+            "pos":[750,550],
+            "radius":12,
+            "brightness":0.38,
+            "active":1
+        }
+    ],
+    "Star_5": [
+        {
+            "pos":[370,660],
+            "radius":12,
+            "brightness":0.6,
+            "active":1
+        }
+    ],
+    "Star_6": [
+        {
+            "pos":[170,725],
+            "radius":12,
+            "brightness":0.5,
+            "active":1
+        }
+    ],
+    "Star_7": [
+        {
+            "pos":[1000,900],
+            "radius":12,
+            "brightness":0.5,
+            "active":1
+        }
+    ],
+    "Star_8": [
+        {
+            "pos":[1000,150],
+            "radius":12,
+            "brightness":0.5,
+            "active":1
+        }
+    ],
+    "Star_9": [
+        {
+            "pos":[1100,100],
+            "radius":12,
+            "brightness":0.5,
+            "active":1
+        }
+    ],
+    "Explanation_text":[
+        {
+            "Latin_name":"Aquila",
+            "text": "Der Adler ist der Koenig der Voegel, wild und stark, blitzschnell und mit scharfen Augen. Er war das Lieblingstier des Goettervaters Zeus und sein Diener. Seine Aufgabe war es, die Donner zurueckzuholen, die Zeus ausschleuderte. Einmal entfuehrte er fuer Zeus den Juengling Ganymed und brachte ihn in den Himmel zu den Goettern. Dort wurde Ganymed zum Geliebten des Zeus und musste als Mundschenk dienen. Oft wird das Sternbild Adler so dargestellt, dass der Adler den Juengling in seinen Klauen haelt und ihn gerade in den Himmel tragen will.Bekannt ist der Adler vor allem durch die Prometheus-Sage. Prometheus war der Sohn von Gaea, der Erde und Uranos, dem Himmel. Er meinte es gut mit den Menschen und brachte ihnen die Kunst und die Wissenschaft, und zu guter Letzt ueberbrachte er ihnen auch das Feuer, dessen sich bislang nur die Goetter bedienen durften. Zeus war darueber erzuernt und liess Prometheus zur Strafe im Kaukasus an einen Felsen ketten."
+        }
+    ]
+}
