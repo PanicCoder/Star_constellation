@@ -58,6 +58,7 @@ class Engine():
                 if event.key == pygame.K_ESCAPE:
                     for i in range(len(self.Status)):
                         self.Status[i] = False
+                    self.freeze = False
                     return True
 
                 if object_type == Game_Render:    
@@ -65,6 +66,20 @@ class Engine():
                         self.freeze = not self.freeze
                         self.r.remove_line()
                         self.r.repaint()
+                    
+                    if event.key == pygame.K_DELETE and not self.freeze:
+                        if self.r.Final_lines:
+                            id = [int(e) for e in self.r.connected_stars[-1]]
+                            if id in self.r.Instructions:
+                                self.r.update_instroctions(id)
+                            del self.r.connected_stars[-1]
+                            self.r.Final_lines[-1].delete()
+                            del self.r.Final_lines[-1]  
+                        else:
+                            self.r.set_Star_to_use(0) 
+                            self.r.update_line_in_use()
+                        self.r.repaint()
+                            
 
                     #only triggers if the keys 0-9 are pressed on the keyboard
                     inp = event.key-49
@@ -184,6 +199,8 @@ class Engine():
                 self.button_reaction(self.r)
             pygame.time.wait(10)
             clock.tick(60)
+            if self.r.completed_star_constellation():
+                self.freeze = True
 
     def Level(self):
         self.level.repaint()

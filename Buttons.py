@@ -2,7 +2,7 @@ import pygame
 from Texts import Text
 
 class Buttons():
-
+    
     def __init__(self, pos_:tuple[int,int], dimensions_:tuple[int,int], color_, reactive_:bool, action_:int or None=None, filled_:int or None = 0) -> None:
 
         #X and Y Position on the surface

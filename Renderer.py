@@ -1,3 +1,4 @@
+from cgi import print_arguments
 import pygame
 import json
 import itertools
@@ -20,6 +21,8 @@ class Game_Render():
         self.Texts :Text =[]
         self.Images :Image = []
         self.Buttons:Buttons = []
+        self.Instructions:list = []
+        self.connected_stars:list = []
         self.Star_in_use :Star = None
         self.Line_in_use :Line = None
         self.old_pos = pygame.mouse.get_pos()  
@@ -47,17 +50,25 @@ class Game_Render():
         latin_name = data["Explanation_text"][0]["Latin_name"]
         content = "Sternbild: "+data["constellation"][0]["constellation_name"]
         headline = self.in_common.create_Headline(content,32,'inkfree')
+        self.Instructions = data["Instructions"][0]["Connections"]
+        i = 20
+        for ins in self.Instructions:
+            self.Texts.append(Text(str(ins[0])+"-"+str(ins[1]),(10+i,pygame.display.get_surface().get_height()-25-self.in_common.get_text_size(str(ins),30,"arial")[1]),(199,20,80),pygame.font.SysFont("arial",30)))
+            i += self.in_common.get_text_size(str(ins[0])+"-"+str(ins[1]),40,"arial")[0]+25
+        t_size = self.in_common.get_text_size("Verbinde die Sterne:",30,"arial")
+        self.Texts.append(Text("Verbinde die Sterne:",(20,self.Texts[-1].pos[1]-t_size[1]-40),(173,216,230),pygame.font.SysFont("arial",30)))
+        self.Buttons.append(self.in_common.create_underline(self.Texts[-1],t_size,(199,20,80),False))
         self.Texts.append(headline[0])
         
 
         for Stars in data:
             if(Stars[0:4]=="Star"):
                 values = data[Stars][0]
-                self.Star_list.append(Star(values["pos"],values["radius"],values["brightness"],values["active"]))
+                self.Star_list.append(Star(values["pos"],values["radius"],values["brightness"],values["active"],Stars[-1]))
                 self.Texts.append(Text(Stars[5:],self.fromat_pos_text(values["pos"],values["radius"]),(173,216,230),pygame.font.SysFont('arial',20)))
-        dimension = (700,1700)
-        t = itertools.chain(self.Texts,self.in_common.format_text(text,dimension,30,(pygame.display.get_surface().get_width()-600,50)))
-        self.Texts = list(t)
+        #dimension = (700,1700)
+        #t = itertools.chain(self.Texts,self.in_common.format_text(text,dimension,30,(pygame.display.get_surface().get_width()-600,50)))
+        #self.Texts = list(t)
         self.set_Star_to_use(0)
 
     def fromat_pos_text(self, pos:tuple[int,int], radius:int):
@@ -84,11 +95,26 @@ class Game_Render():
         return self.in_common.check_collision(self.Star_list,self.old_pos)
 
     def Lock_line(self, star_to_lock:Star):
+        ids = [int(self.Star_in_use.id),int(star_to_lock.id)]
+        if self.Star_in_use.id == star_to_lock.id:
+            return 
+        for connections in self.connected_stars:
+            if connections == ids or connections == [int(star_to_lock.id),int(self.Star_in_use.id)]:
+                return
+        for ins in self.Instructions:
+            if ins == ids:
+                self.update_instroctions(ids)
+                self.connected_stars.append(ids)
+            elif ins == ids[::-1]:
+                self.update_instroctions(ids[::-1])
+                self.connected_stars.append(ids[::-1])
         pygame.display.get_surface().fill((0,0,0))
         self.repaint()
+        
         self.Final_lines.append(self.Line_in_use.final_line(self.Star_in_use,star_to_lock))
         self.Star_in_use = star_to_lock
         self.Line_in_use = Line(star_to_lock.get_pos(),pygame.mouse.get_pos())
+        
         
     def update_mouse_pos(self):
         self.old_pos = pygame.mouse.get_pos()
@@ -96,6 +122,19 @@ class Game_Render():
     def animation(self):
         for stars in self.Star_list:
             stars.animation()
+
+    def update_instroctions(self,ids):
+        text = self.in_common.find_text_object(str(ids[0])+"-"+str(ids[1]),self.Texts)
+        text.change_color((199,20,80) if text.font_color == (20,199,80) else (20,199,80))
+        text.draw()
+
+    def completed_star_constellation(self):
+        number_conections = len(self.Instructions)
+        count = 0
+        for inst in self.Instructions:
+            if inst in self.connected_stars:
+                count+=1
+        return True if number_conections == count and len(self.connected_stars) == number_conections else False
     
 class Game_Lobby():
 

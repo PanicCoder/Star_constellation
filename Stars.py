@@ -2,12 +2,13 @@ import pygame
 
 class Star():
 
-    def __init__(self, pos_:tuple[int,int], radius_:int, bright:float, active_:bool) -> None:
+    def __init__(self, pos_:tuple[int,int], radius_:int, bright:float, active_:bool, id_:int) -> None:
 
         #X and Y Position on the surface
         self.pos = pos_    
         self.radius = radius_
         self.clock = pygame.time.Clock()
+        self.id = id_
 
         #1 dark 0 brightest
         self.brightness = bright  

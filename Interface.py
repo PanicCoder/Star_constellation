@@ -1,3 +1,4 @@
+from matplotlib.pyplot import text
 import pygame
 import os
 from Buttons import Buttons
@@ -35,11 +36,11 @@ class In_common():
     def create_Headline(self, caption_:str,size : int, font: str or None ="arial", color:tuple or None = (0,0,0)):
         text_size = pygame.font.SysFont(font,size).size(caption_)
         caption = Text(caption_,((self.screen.get_width()/2-text_size[0]/2,40)),(194, 194, 214),pygame.font.SysFont(font,size))
-        under_line = Buttons((caption.pos[0],caption.pos[1]+text_size[1]-10),(text_size[0],4),color,False)
+        under_line = self.create_underline(caption,text_size,color,True)
         return (caption, under_line,text_size)
 
     def format_text(self,content:str,text_dimensions:tuple, size:int, pos:tuple, font: str or None ="arial", color:tuple or None = (255,255,255)):
-        character_size = pygame.font.SysFont(font,size).size("Q")
+        character_size = self.get_text_size(content,size,font)
         character_in_one_line = text_dimensions[0]/character_size[0]
         max_lines = text_dimensions[1]/character_size[1]
         needed_lines = len(content)/character_in_one_line
@@ -72,6 +73,13 @@ class In_common():
             if button.text!= None:
                 if button.text.content == t:
                     return button
+
+    def create_underline(self,caption:Text,text_size:tuple,color,minigate_space:bool):
+        space = 10 if minigate_space else 0
+        return Buttons((caption.pos[0],caption.pos[1]+text_size[1]-space),(text_size[0],4),color,False)
+
+    def get_text_size(self, content:str, font_size:int, font:str):
+        return pygame.font.SysFont(font,font_size).size(content)
 
 
 
