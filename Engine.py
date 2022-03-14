@@ -17,6 +17,7 @@ class Engine():
         self.freeze = False
         self.return_flag = False
         self.fullscreen = False
+        self.star_index = 0
         self.r = Game_Render(self.level_name)
         self.l = Game_Lobby(self.level_name)
         self.level = Level()
@@ -65,11 +66,11 @@ class Engine():
                     if event.key == pygame.K_RETURN:
                         self.freeze = not self.freeze
                         self.r.remove_line()
-                        self.r.repaint()
+                        self.r.reapaint_constellation()
                     
-                    if event.key == pygame.K_DELETE and not self.freeze:
-                        if self.r.Final_lines:
-                            id = [int(e) for e in self.r.connected_stars[-1]]
+                    if event.key == pygame.K_DELETE:
+                        if self.r.Final_lines and self.r.connected_stars:
+                            id = self.r.connected_stars[-1]
                             if id in self.r.Instructions:
                                 self.r.update_instroctions(id)
                             del self.r.connected_stars[-1]
@@ -78,7 +79,8 @@ class Engine():
                         else:
                             self.r.set_Star_to_use(0) 
                             self.r.update_line_in_use()
-                        self.r.repaint()
+                        self.freeze = False
+                        self.r.reapaint_constellation()
                             
 
                     #only triggers if the keys 0-9 are pressed on the keyboard
@@ -86,7 +88,25 @@ class Engine():
                     if inp >-2 and inp < len(self.r.Star_list):
                         self.r.set_Star_to_use(inp) 
                         self.r.update_line_in_use()
-                        self.r.repaint()
+                        self.r.reapaint_constellation()
+
+                    if event.key == pygame.K_RIGHT:
+                        if self.star_index+1 < len(self.r.Star_list):
+                            self.star_index += 1
+                        else:
+                            self.star_index = 0
+                        self.r.set_Star_to_use(self.star_index) 
+                        self.r.update_line_in_use()
+                        self.r.reapaint_constellation()
+                        
+                    elif event.key == pygame.K_LEFT:
+                        if self.star_index -1 >= 0:
+                            self.star_index -=1  
+                        else: 
+                            self.star_index = len(self.r.Star_list)-1
+                        self.r.set_Star_to_use(self.star_index) 
+                        self.r.update_line_in_use()
+                        self.r.reapaint_constellation()
         return False
 
     def button_reaction(self,object,color:tuple[int,int,int] or None = None,color_update:tuple[int,int,int] or None = None):

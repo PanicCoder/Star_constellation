@@ -7,4 +7,3 @@ pygame.display.set_icon(pygame.image.load(os.path.join([x[0] for x in os.walk(os
 
 if(__name__ == "__main__"):
     Engine().Loop()
-    

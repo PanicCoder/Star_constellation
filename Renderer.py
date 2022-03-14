@@ -1,7 +1,6 @@
-from cgi import print_arguments
 import pygame
 import json
-import itertools
+import math
 import os
 
 from Stars import Star
@@ -25,6 +24,7 @@ class Game_Render():
         self.connected_stars:list = []
         self.Star_in_use :Star = None
         self.Line_in_use :Line = None
+        self.screen = pygame.display.get_surface()
         self.old_pos = pygame.mouse.get_pos()  
         self.in_common = In_common(self)
         self.name = name_
@@ -47,9 +47,9 @@ class Game_Render():
         data = json.load(file)
         file.close()
         text = str(data["Explanation_text"][0]["text"])
-        latin_name = data["Explanation_text"][0]["Latin_name"]
+        latin_name = "\lat.: "+data["Explanation_text"][0]["Latin_name"]
         content = "Sternbild: "+data["constellation"][0]["constellation_name"]
-        headline = self.in_common.create_Headline(content,32,'inkfree')
+        headline = self.in_common.create_Headline(content+latin_name,50,'inkfree')
         self.Instructions = data["Instructions"][0]["Connections"]
         i = 20
         for ins in self.Instructions:
@@ -60,23 +60,35 @@ class Game_Render():
         self.Buttons.append(self.in_common.create_underline(self.Texts[-1],t_size,(199,20,80),False))
         self.Texts.append(headline[0])
         
-
         for Stars in data:
             if(Stars[0:4]=="Star"):
                 values = data[Stars][0]
                 self.Star_list.append(Star(values["pos"],values["radius"],values["brightness"],values["active"],Stars[-1]))
                 self.Texts.append(Text(Stars[5:],self.fromat_pos_text(values["pos"],values["radius"]),(173,216,230),pygame.font.SysFont('arial',20)))
-        #dimension = (700,1700)
-        #t = itertools.chain(self.Texts,self.in_common.format_text(text,dimension,30,(pygame.display.get_surface().get_width()-600,50)))
-        #self.Texts = list(t)
+        
+        dimension = (700,self.screen.get_height())
+        t = self.in_common.format_text(text,dimension,30,[self.screen.get_width()-dimension[0],0])
+        factor = math.floor(self.get_factor(t))
+        for text in t:
+            text.change_pos((text.pos[0],text.pos[1]+factor))
+            self.Texts.append(text)
         self.set_Star_to_use(0)
 
+    def get_factor(self,text_l:list):
+        start_y = text_l[0].pos[1]
+        length = text_l[-1].pos[1] - start_y
+        y = self.screen.get_height()-50-start_y
+        start_point = start_y+((y/2)-(length/2))
+        return start_point -start_y
+
     def fromat_pos_text(self, pos:tuple[int,int], radius:int):
-        return (pos[0]-radius/2, pos[1]-(radius+20))
+        return (pos[0]-radius/2, pos[1]-(radius+20)) 
 
     def repaint(self):
         self.in_common.repaint([self.Images,self.Final_lines,self.Buttons,self.Star_list,self.Texts])
 
+    def reapaint_constellation(self):
+        self.in_common.repaint([self.Final_lines,self.Star_list])
 
     def update_line(self):
         pos = pygame.mouse.get_pos()
@@ -104,12 +116,12 @@ class Game_Render():
         for ins in self.Instructions:
             if ins == ids:
                 self.update_instroctions(ids)
-                self.connected_stars.append(ids)
             elif ins == ids[::-1]:
                 self.update_instroctions(ids[::-1])
                 self.connected_stars.append(ids[::-1])
-        pygame.display.get_surface().fill((0,0,0))
-        self.repaint()
+        self.connected_stars.append(ids)
+        self.Line_in_use.delete()
+        self.reapaint_constellation()
         
         self.Final_lines.append(self.Line_in_use.final_line(self.Star_in_use,star_to_lock))
         self.Star_in_use = star_to_lock

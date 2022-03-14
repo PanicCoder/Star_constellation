@@ -1,5 +1,5 @@
-from matplotlib.pyplot import text
 import pygame
+import math
 import os
 from Buttons import Buttons
 from Texts import Text
@@ -34,30 +34,31 @@ class In_common():
         return (False,None)
 
     def create_Headline(self, caption_:str,size : int, font: str or None ="arial", color:tuple or None = (0,0,0)):
-        text_size = pygame.font.SysFont(font,size).size(caption_)
+        text_size = self.get_text_size(caption_,size,font)
         caption = Text(caption_,((self.screen.get_width()/2-text_size[0]/2,40)),(194, 194, 214),pygame.font.SysFont(font,size))
         under_line = self.create_underline(caption,text_size,color,True)
         return (caption, under_line,text_size)
 
-    def format_text(self,content:str,text_dimensions:tuple, size:int, pos:tuple, font: str or None ="arial", color:tuple or None = (255,255,255)):
-        character_size = self.get_text_size(content,size,font)
-        character_in_one_line = text_dimensions[0]/character_size[0]
-        max_lines = text_dimensions[1]/character_size[1]
-        needed_lines = len(content)/character_in_one_line
-        Line_text = []
-        start = 0
-        end = int(character_in_one_line)
-        for _ in range(int(needed_lines)+1):
-            Line_text.append(content[start:end])
-            start += int(character_in_one_line)
-            end += int(character_in_one_line)
+    def format_text(self,content_:str,text_dimensions:tuple, size:int, pos, font: str or None ="arial", color:tuple or None = (255,255,255)):
+        content = content_.split(" ")
         text_list = []
-        x = pos[0]
-        y = pos[1]
-        for texts in Line_text:
-            text_list.append(Text(texts,(x,y),color,pygame.font.SysFont(font,size)))
-            y+=character_size[1]
+        stop = False
+        while(not stop):
+            word_sizes = self.get_text_size(content[1]+" ",size,font)[0]
+            word_text = ""
+            while(not stop):
+                word_sizes += self.get_text_size(content[1]+" ",size,font)[0]
+                if word_sizes > text_dimensions[0]:
+                    break
+                word_text += content[0]+" "
+                del content[0]
+                if len(content)<2:
+                    word_text+=content[0]
+                    stop = True
+            text_list.append(Text(word_text,tuple(pos),color,pygame.font.SysFont(font,size)))
+            pos[1] += self.get_text_size(word_text,size,font)[1]+10       
         return text_list
+
     def create_shutdown_button(self):
         return Image((50,self.screen.get_height()-150),pygame.image.load(os.path.join([x[0] for x in os.walk(os.getcwd())][1], "Exit.png")),(125,125),True,"QUIT")
 
