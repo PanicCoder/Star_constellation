@@ -8,7 +8,7 @@
     
     "Star_1": [
         {
-            "pos":[150,400],
+            "pos":[310,400],
             "radius":12,
             "brightness":0.25,
             "active":1
@@ -16,7 +16,7 @@
     ],
     "Star_2": [
         {
-            "pos":[200,250],
+            "pos":[350,270],
             "radius":40,
             "brightness":0,
             "active":1
@@ -24,7 +24,7 @@
     ],
     "Star_3": [
         {
-            "pos":[280,100],
+            "pos":[420,140],
             "radius":30,
             "brightness":0.35,
             "active":1
@@ -32,10 +32,62 @@
     ],
     "Star_4": [
         {
-            "pos":[850,550],
-            "radius":12,
-            "brightness":0.45,
+            "pos":[750,550],
+            "radius":20,
+            "brightness":0.38,
             "active":1
+        }
+    ],
+    "Star_5": [
+        {
+            "pos":[370,660],
+            "radius":14,
+            "brightness":0.6,
+            "active":1
+        }
+    ],
+    "Star_6": [
+        {
+            "pos":[170,725],
+            "radius":19,
+            "brightness":0.29,
+            "active":1
+        }
+    ],
+    "Star_7": [
+        {
+            "pos":[1000,900],
+            "radius":16,
+            "brightness":0.3,
+            "active":1
+        }
+    ],
+    "Star_8": [
+        {
+            "pos":[1000,150],
+            "radius":23,
+            "brightness":0.2,
+            "active":1
+            
+        }
+    ],
+    "Star_9": [
+        {
+            "pos":[1100,120],
+            "radius":19,
+            "brightness":0.4,
+            "active":1
+        }
+    ],
+    "Instructions": [
+        {
+            "Connections":[[1,2],[2,3],[2,4],[4,5],[4,7],[4,8],[5,6],[8,9]]
+        }
+    ],
+    "Explanation_text":[
+        {
+            "Latin_name":"Aquila",
+            "text": "Der Adler ist der Koenig der Voegel, wild und stark, blitzschnell und mit scharfen Augen. Er war das Lieblingstier des Goettervaters Zeus und sein Diener. Seine Aufgabe war es, die Donner zurueckzuholen, die Zeus ausschleuderte. Einmal entfuehrte er fuer Zeus den Juengling Ganymed und brachte ihn in den Himmel zu den Goettern. Dort wurde Ganymed zum Geliebten des Zeus und musste als Mundschenk dienen. Oft wird das Sternbild Adler so dargestellt, dass der Adler den Juengling in seinen Klauen haelt und ihn gerade in den Himmel tragen will."
         }
     ]
 }
