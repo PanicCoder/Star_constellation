@@ -38,7 +38,7 @@ class In_common():
         caption = Text(caption_,((self.screen.get_width()/2-text_size[0]/2,40)),(194, 194, 214),pygame.font.SysFont(font,size))
         under_line = self.create_underline(caption,text_size,color,True)
         return (caption, under_line,text_size)
-
+    
     def format_text(self,content_:str,text_dimensions:tuple, size:int, pos, font: str or None ="arial", color:tuple or None = (255,255,255)):
         content = content_.split(" ")
         text_list = []

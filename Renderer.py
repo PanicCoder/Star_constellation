@@ -28,6 +28,7 @@ class Game_Render():
         self.old_pos = pygame.mouse.get_pos()  
         self.in_common = In_common(self)
         self.name = name_
+        self.mask = None
         self.create(os.path.join([x[0] for x in os.walk(os.getcwd())][3], str(self.name)+'.json'))
 
     def create(self,path:str):
@@ -46,6 +47,7 @@ class Game_Render():
         file = open(path)
         data = json.load(file)
         file.close()
+        positions = []
         text = str(data["Explanation_text"][0]["text"])
         latin_name = "\lat.: "+data["Explanation_text"][0]["Latin_name"]
         content = "Sternbild: "+data["constellation"][0]["constellation_name"]
@@ -65,7 +67,8 @@ class Game_Render():
                 values = data[Stars][0]
                 self.Star_list.append(Star(values["pos"],values["radius"],values["brightness"],values["active"],Stars[-1]))
                 self.Texts.append(Text(Stars[5:],self.fromat_pos_text(values["pos"],values["radius"]),(173,216,230),pygame.font.SysFont('arial',20)))
-        
+                positions.append(values["pos"])
+        self.mask = self.create_mask(positions,values["radius"])
         dimension = (700,self.screen.get_height())
         t = self.in_common.format_text(text,dimension,30,[self.screen.get_width()-dimension[0],0])
         factor = math.floor(self.get_factor(t))
@@ -73,6 +76,24 @@ class Game_Render():
             text.change_pos((text.pos[0],text.pos[1]+factor))
             self.Texts.append(text)
         self.set_Star_to_use(0)
+
+    #returns a mask for the space the star_constellation need
+    def create_mask(self,postion_list, radius:int):
+        nearest_x = self.screen.get_width()
+        nearest_y = self.screen.get_height()
+        furthest_x = 0
+        furthest_y = 0
+        
+        for pos in postion_list:
+            if pos[0]-radius < nearest_x:
+                nearest_x = pos[0]-radius
+            if pos[0]-radius > furthest_x:
+                furthest_x = pos[0]-radius
+            if pos[1]-radius < nearest_y:
+                nearest_y = pos[1]-radius
+            if pos[1]-radius > furthest_y:
+                furthest_y = pos[1]-radius
+        return pygame.Rect(nearest_x,nearest_y,furthest_x+2*radius-nearest_x,furthest_y-nearest_y)
 
     def get_factor(self,text_l:list):
         start_y = text_l[0].pos[1]
@@ -84,11 +105,14 @@ class Game_Render():
     def fromat_pos_text(self, pos:tuple[int,int], radius:int):
         return (pos[0]-radius/2, pos[1]-(radius+20)) 
 
-    def repaint(self):
-        self.in_common.repaint([self.Images,self.Final_lines,self.Buttons,self.Star_list,self.Texts])
-
-    def reapaint_constellation(self):
-        self.in_common.repaint([self.Final_lines,self.Star_list])
+    def repaint(self,dont_check:bool or None = True):
+        if dont_check:
+            self.in_common.repaint([self.Images,self.Final_lines,self.Buttons,self.Star_list,self.Texts])
+            return
+        if not self.mask.collidepoint(pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1]):
+            self.in_common.repaint([self.Images,self.Final_lines,self.Buttons,self.Star_list,self.Texts])
+        else:
+            self.in_common.repaint([self.Final_lines,self.Star_list]) 
 
     def update_line(self):
         pos = pygame.mouse.get_pos()
@@ -96,7 +120,7 @@ class Game_Render():
             self.old_pos=pos
             self.remove_line()
             self.Line_in_use.update_line(self.Star_in_use.get_pos(),pos)
-            self.repaint()
+            self.repaint(False)
         else:
             self.old_pos=pos
  
@@ -107,6 +131,7 @@ class Game_Render():
         return self.in_common.check_collision(self.Star_list,self.old_pos)
 
     def Lock_line(self, star_to_lock:Star):
+        reverse = False
         ids = [int(self.Star_in_use.id),int(star_to_lock.id)]
         if self.Star_in_use.id == star_to_lock.id:
             return 
@@ -118,12 +143,15 @@ class Game_Render():
                 self.update_instroctions(ids)
             elif ins == ids[::-1]:
                 self.update_instroctions(ids[::-1])
-                self.connected_stars.append(ids[::-1])
-        self.connected_stars.append(ids)
+                reverse = True
         self.Line_in_use.delete()
-        self.reapaint_constellation()
-        
-        self.Final_lines.append(self.Line_in_use.final_line(self.Star_in_use,star_to_lock))
+        self.repaint(False)
+        if reverse:
+            self.Final_lines.append(self.Line_in_use.final_line(star_to_lock,self.Star_in_use))
+            self.connected_stars.append(ids[::-1])
+        else:
+            self.Final_lines.append(self.Line_in_use.final_line(self.Star_in_use,star_to_lock))
+            self.connected_stars.append(ids)
         self.Star_in_use = star_to_lock
         self.Line_in_use = Line(star_to_lock.get_pos(),pygame.mouse.get_pos())
         
@@ -146,7 +174,10 @@ class Game_Render():
         for inst in self.Instructions:
             if inst in self.connected_stars:
                 count+=1
-        return True if number_conections == count and len(self.connected_stars) == number_conections else False
+        #print(str(len(self.connected_stars))+" | "+str(number_conections))
+        if number_conections == count and len(self.connected_stars) == number_conections:
+            return True  
+        return False
     
 class Game_Lobby():
 
