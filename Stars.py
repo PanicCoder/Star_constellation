@@ -1,8 +1,9 @@
 import pygame
+from Texts import Text
 
 class Star():
 
-    def __init__(self, pos_:tuple[int,int], radius_:int, bright:float, active_:bool, id_:int) -> None:
+    def __init__(self, pos_:tuple[int,int], radius_:int, bright:float, active_:bool, id_:int,text_:str) -> None:
 
         #X and Y Position on the surface
         self.pos = pos_    
@@ -15,6 +16,7 @@ class Star():
         self.color = (255-(self.brightness*255),255-(self.brightness*255),255-(self.brightness*255))
         self.active = active_
         self.screen = pygame.display.get_surface()
+        self.text:Text = self.create_text(text_)
         
         #creates mask for collision detection
         self.mask = pygame.Rect(self.pos[0]-self.radius,self.pos[1]-self.radius,self.radius*2,self.radius*2) 
@@ -22,8 +24,13 @@ class Star():
     def draw(self):
         if(self.active):
             pygame.draw.circle(self.screen,self.color,self.pos,self.radius,0)
+            self.text.draw()
             pygame.display.update()
 
+
+    def create_text(self,content:str):
+        return Text(content,(self.pos[0]-self.radius/2, self.pos[1]-(self.radius+20)),(173,216,230),pygame.font.SysFont('arial',20))
+        
     #gradually decreases the brightness until the star is invisible   
     def animation(self):
         while(self.brightness < 1):

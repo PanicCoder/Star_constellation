@@ -65,11 +65,11 @@ class Game_Render():
         for Stars in data:
             if(Stars[0:4]=="Star"):
                 values = data[Stars][0]
-                self.Star_list.append(Star(values["pos"],values["radius"],values["brightness"],values["active"],Stars[-1]))
-                self.Texts.append(Text(Stars[5:],self.fromat_pos_text(values["pos"],values["radius"]),(173,216,230),pygame.font.SysFont('arial',20)))
+                self.Star_list.append(Star(values["pos"],values["radius"],values["brightness"],values["active"],Stars[-1],Stars[5:]))
                 positions.append(values["pos"])
-        self.mask = self.create_mask(positions,values["radius"])
-        dimension = (700,self.screen.get_height())
+        pos_points = self.get_pos_points(positions,values["radius"])
+        self.mask = self.create_mask(pos_points,values["radius"])
+        dimension = (self.screen.get_width()-pos_points[1]-2*values["radius"]-30,self.screen.get_height())
         t = self.in_common.format_text(text,dimension,30,[self.screen.get_width()-dimension[0],0])
         factor = math.floor(self.get_factor(t))
         for text in t:
@@ -77,13 +77,12 @@ class Game_Render():
             self.Texts.append(text)
         self.set_Star_to_use(0)
 
-    #returns a mask for the space the star_constellation need
-    def create_mask(self,postion_list, radius:int):
+
+    def get_pos_points(self,postion_list, radius:int):
         nearest_x = self.screen.get_width()
         nearest_y = self.screen.get_height()
         furthest_x = 0
         furthest_y = 0
-        
         for pos in postion_list:
             if pos[0]-radius < nearest_x:
                 nearest_x = pos[0]-radius
@@ -93,7 +92,11 @@ class Game_Render():
                 nearest_y = pos[1]-radius
             if pos[1]-radius > furthest_y:
                 furthest_y = pos[1]-radius
-        return pygame.Rect(nearest_x,nearest_y,furthest_x+2*radius-nearest_x,furthest_y-nearest_y)
+        return [nearest_x,furthest_x,nearest_y,furthest_y]
+    #returns a mask for the space the star_constellation need
+    def create_mask(self,pos,radius):
+        #nearest_x,nearest_y,furthest_x*2radius-nearest_x,furtest_y-nearest_y
+        return pygame.Rect(pos[0],pos[2],pos[1]+2*radius-pos[0],pos[3]-pos[2])
 
     def get_factor(self,text_l:list):
         start_y = text_l[0].pos[1]
@@ -101,9 +104,6 @@ class Game_Render():
         y = self.screen.get_height()-50-start_y
         start_point = start_y+((y/2)-(length/2))
         return start_point -start_y
-
-    def fromat_pos_text(self, pos:tuple[int,int], radius:int):
-        return (pos[0]-radius/2, pos[1]-(radius+20)) 
 
     def repaint(self,dont_check:bool or None = True):
         if dont_check:
