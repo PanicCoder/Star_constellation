@@ -1,18 +1,17 @@
 import pygame 
+import Konstants as konst
 
 class Text():
 
     def __init__(self,content:str, position:tuple[int,int], color:tuple[int,int,int], font_:pygame.font.SysFont) -> None:
-        self.screen = pygame.display.get_surface()
         self.content  = content
         self.pos  = position
-
         self.font_color = color
         self.font = font_
         
     def draw(self):
         text_surface = self.font.render(self.content,False,self.font_color)
-        self.screen.blit(text_surface,self.pos)
+        konst.screen.blit(text_surface,self.pos)
         pygame.display.update()
 
     def change_text(self, content:str):

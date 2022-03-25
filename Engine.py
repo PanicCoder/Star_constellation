@@ -1,16 +1,12 @@
 from matplotlib.font_manager import json_dump
 import pygame
 import json
+import Konstants as konst
 from Renderer import *
 
 class Engine():
     
     def __init__(self) -> None:         
-        self.Width = 1750
-        self.Height = 1000
-        self.Width = 1280
-        self.Height = 700
-        self.screen = pygame.display.set_mode((self.Width,self.Height),pygame.RESIZABLE)
         self.old_dimensions = [pygame.display.get_window_size()]
 
         #Current status of the game: Play,Continue,Level,Settings,Quit
@@ -34,25 +30,33 @@ class Engine():
         settings = json.load(file)
         file.close()
         if settings["window"][0]["fullscreen"]:
-            self.screen = pygame.display.set_mode((self.Width,self.Height),pygame.FULLSCREEN)
-            
+            konst.screen = pygame.display.set_mode((konst.Width,konst.Height),pygame.FULLSCREEN)
+            self.update_screen()
+    
+    def update_screen(self):
+        konst.mx = konst.screen.get_width()/1750
+        konst.my = konst.screen.get_height()/1000
+        konst.mt = konst.mx/2 + konst.my/2
+        
     def check_events(self,object):
         pygame.time.wait(10)
         object_type = type(object)
-        if self.old_dimensions != pygame.display.get_window_size():
+        w_size = pygame.display.get_window_size()
+        if self.old_dimensions != w_size:
             for o in self.object_list:
                 if o.id != 0 and o.id !=1:
                     o.__init__()
                 else:
                     o.__init__(self.level_name)
-            self.old_dimensions = pygame.display.get_window_size()
+            self.old_dimensions = w_size
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.Running = False
                 return
             elif event.type == pygame.VIDEORESIZE:
                 type_w = pygame.FULLSCREEN if self.fullscreen else pygame.RESIZABLE
-                self.screen = pygame.display.set_mode(event.size, type_w)
+                konst.screen = pygame.display.set_mode(event.size, type_w)
+                self.update_screen()
                 if not object_type == Game_Render and not object_type == Game_Lobby:
                     object.__init__()
                 else:
@@ -63,7 +67,7 @@ class Engine():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_F11:
                     if self.fullscreen:
-                        pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE, size = (self.Width, self.Height)))
+                        pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE, size = (konst.screen.get_width(), konst.screen.get_height())))
                     else:
                         pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE, size = (1920, 1080)))
                     self.fullscreen = not self.fullscreen
@@ -197,7 +201,7 @@ class Engine():
 
     def Loop(self):
         while self.Running:
-            self.screen.fill((0,0,0))
+            konst.screen.fill((0,0,0))
             pygame.display.update()
             self.l.choosen_level(self.level_name)
             self.update_mouse()

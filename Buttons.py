@@ -1,5 +1,6 @@
 import pygame
 from Texts import Text
+import Konstants as konst
 
 class Buttons():
 
@@ -10,7 +11,6 @@ class Buttons():
         self.dimensions = dimensions_
         self.clock = pygame.time.Clock()
         self.color = color_
-        self.screen = pygame.display.get_surface()
         self.reactive = reactive_
         self.text = None
         self.filled = filled_
@@ -21,7 +21,7 @@ class Buttons():
         self.mask = pygame.Rect(self.pos[0],self.pos[1],self.dimensions[0],self.dimensions[1]) 
 
     def draw(self):
-        pygame.draw.rect(self.screen,self.color,(self.pos,self.dimensions),self.filled)
+        pygame.draw.rect(konst.screen,self.color,(self.pos,self.dimensions),self.filled)
         if self.text != None:
             self.text.draw()
         pygame.display.update()

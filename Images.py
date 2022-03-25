@@ -1,9 +1,9 @@
+from webbrowser import Konqueror
 import pygame
-
+import Konstants as konst
 class Image():
 
     def __init__(self, pos_:tuple[int,int], image_:pygame.image, scale_:tuple[int,int], interact_:bool, action_:str or None=None) -> None:
-        self.screen = pygame.display.get_surface()
         self.pos = pos_
         self.image = image_
         self.scale = scale_
@@ -15,7 +15,7 @@ class Image():
         self.image = new_image
 
     def draw(self):
-        self.screen.blit(pygame.transform.scale(self.image,(self.scale)),self.pos)
+        konst.screen.blit(pygame.transform.scale(self.image,(self.scale)),self.pos)
 
     def check_collision(self, pos:tuple[int,int]):
         if self.interact:
