@@ -8,16 +8,16 @@
     
     "Star_1": [
         {
-            "pos":[250,100],
-            "radius":20,
-            "brightness":0.15,
+            "pos":[150,500],
+            "radius":25,
+            "brightness":0.1,
             "active":1
         }
     ],
     "Star_2": [
         {
-            "pos":[300,1150],
-            "radius":10,
+            "pos":[800,550],
+            "radius":35,
             "brightness":0,
             "active":1
         }
@@ -40,13 +40,13 @@
     ],
     "Instructions": [
         {
-            "Connections":[[1,2],[2,3],[2,4],[4,5],[4,7],[4,8],[5,6],[8,9]]
+            "Connections":[[2,1]]
         }
     ],
     "Explanation_text":[
         {
-            "Latin_name":"Aquila",
-            "text":" "
+            "Latin_name":"Andromeda",
+            "text":"Es lebte einmal eine Koenigin in Aethiopien, die hiess Cassiopeia. Sie hatte eine wunderschoene Tochter namens Andromeda. Cassiopeia war sehr stolz auf sie und prahlte damit, dass ihre Tochter huebscher sei als die Nereiden, die 50 Toechter des Meergreises Nereus. Die Nereiden waren beleidigt und beschwerten sich daraufhin bei Poseidon, ihrem Freund und Beschuetzer."
         }
     ]
 }

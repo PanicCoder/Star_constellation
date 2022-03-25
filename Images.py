@@ -11,6 +11,9 @@ class Image():
         self.mask =  pygame.Rect(self.pos[0],self.pos[1],self.scale[0],self.scale[1])
         self.action = action_
 
+    def change_image(self,new_image:pygame.image):
+        self.image = new_image
+
     def draw(self):
         self.screen.blit(pygame.transform.scale(self.image,(self.scale)),self.pos)
 

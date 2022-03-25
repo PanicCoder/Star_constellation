@@ -1,6 +1,6 @@
 import pygame
-import math
-import os
+import Konstants as paths
+
 from Buttons import Buttons
 from Texts import Text
 from Images import Image
@@ -10,6 +10,10 @@ class In_common():
     def __init__(self, object_) -> None:
         self.object = object_
         self.screen = pygame.display.get_surface()
+        self.mx = self.screen.get_width()/1750
+        self.my = self.screen.get_height()/1000
+        self.mt = self.mx/2 + self.my/2
+        #print(self.mx,self.my,self.mt,sep=" | ")
 
     def repaint(self, list_to_draw:list):
         #repaints all stored objects
@@ -35,7 +39,7 @@ class In_common():
 
     def create_Headline(self, caption_:str,size : int, font: str or None ="arial", color:tuple or None = (0,0,0)):
         text_size = self.get_text_size(caption_,size,font)
-        caption = Text(caption_,((self.screen.get_width()/2-text_size[0]/2,40)),(194, 194, 214),pygame.font.SysFont(font,size))
+        caption = Text(caption_,((self.screen.get_width()/2-text_size[0]/2,40*self.my)),(194, 194, 214),pygame.font.SysFont(font,size))
         under_line = self.create_underline(caption,text_size,color,True)
         return (caption, under_line,text_size)
     
@@ -56,11 +60,11 @@ class In_common():
                     word_text+=content[0]
                     stop = True
             text_list.append(Text(word_text,tuple(pos),color,pygame.font.SysFont(font,size)))
-            pos[1] += self.get_text_size(word_text,size,font)[1]+10       
+            pos[1] += self.get_text_size(word_text,size,font)[1]+10*self.my       
         return text_list
 
     def create_shutdown_button(self):
-        return Image((50,self.screen.get_height()-150),pygame.image.load(os.path.join([x[0] for x in os.walk(os.getcwd())][1], "Exit.png")),(125,125),True,"QUIT")
+        return Image((50,self.screen.get_height()-150),pygame.image.load(paths.exit),(125,125),True,"QUIT")
 
     def set_background(self, image_path:str):
         return Image((0,0),pygame.image.load(image_path),(self.screen.get_width(),self.screen.get_height()),False)

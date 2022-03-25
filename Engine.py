@@ -1,4 +1,6 @@
+from matplotlib.font_manager import json_dump
 import pygame
+import json
 from Renderer import *
 
 class Engine():
@@ -6,6 +8,8 @@ class Engine():
     def __init__(self) -> None:         
         self.Width = 1750
         self.Height = 1000
+        self.Width = 1280
+        self.Height = 700
         self.screen = pygame.display.set_mode((self.Width,self.Height),pygame.RESIZABLE)
         self.old_dimensions = [pygame.display.get_window_size()]
 
@@ -23,7 +27,15 @@ class Engine():
         self.level = Level()
         self.settings = Settings()
         self.object_list = [self.r,self.l,self.level,self.settings]
-
+        self.load_settings()
+    
+    def load_settings(self):
+        file = open(paths.settings_json)
+        settings = json.load(file)
+        file.close()
+        if settings["window"][0]["fullscreen"]:
+            self.screen = pygame.display.set_mode((self.Width,self.Height),pygame.FULLSCREEN)
+            
     def check_events(self,object):
         pygame.time.wait(10)
         object_type = type(object)
@@ -57,6 +69,8 @@ class Engine():
                     self.fullscreen = not self.fullscreen
 
                 if event.key == pygame.K_ESCAPE:
+                    if object_type == Game_Lobby:
+                        return
                     for i in range(len(self.Status)):
                         self.Status[i] = False
                     self.freeze = False
@@ -66,7 +80,7 @@ class Engine():
                     if event.key == pygame.K_RETURN:
                         self.freeze = not self.freeze
                         self.r.remove_line()
-                        self.r.reapaint(False)
+                        self.r.repaint(False)
                     
                     if event.key == pygame.K_DELETE:
                         if self.r.Final_lines and self.r.connected_stars:
@@ -145,6 +159,18 @@ class Engine():
                 self.Running = False
                 return True
 
+            if collision_images[1].action == "set_fullscreen":
+                file = open(paths.settings_json)
+                content = json.load(file)
+                content["window"][0]["fullscreen"] = not content["window"][0]["fullscreen"]
+                json_dump(content,paths.settings_json)
+                file.close()
+                collision_images[1].change_image(pygame.image.load(paths.switch[int(content["window"][0]["fullscreen"])]))
+                collision_images[1].draw()
+                pygame.display.update()
+                self.return_flag = True
+                return True
+
         if collision[0] and pygame.mouse.get_pressed()[0] and not self.return_flag:
             if type(object) == Game_Lobby: 
                 self.Status[collision[1].get_action()] = not self.Status[collision[1].get_action()]
@@ -157,6 +183,7 @@ class Engine():
                 collision[1].update_color(color)
                 self.return_flag = True
                 return True
+            
 
         if self.return_flag and not pygame.mouse.get_pressed()[0]:
             self.return_flag = False
@@ -231,8 +258,12 @@ class Engine():
 
     def Settings(self):
         self.settings.repaint()
+        exit = False
         while self.Running:
-            if self.check_events(self.settings) or self.button_reaction(self.settings,color=(7,45,99),color_update=(34,59,112)):
+            if exit:
                 return
+            exit = self.check_events(self.settings)
+            if self.button_reaction(self.settings,color=(7,45,99),color_update=(34,59,112)):
+                pass
             pygame.time.wait(10)
             

@@ -3,6 +3,7 @@ import json
 import math
 import os
 
+import Konstants as paths
 from Stars import Star
 from Lines import Line
 from Texts import Text
@@ -29,7 +30,7 @@ class Game_Render():
         self.in_common = In_common(self)
         self.name = name_
         self.mask = None
-        self.create(os.path.join([x[0] for x in os.walk(os.getcwd())][3], str(self.name)+'.json'))
+        self.create(paths.level_json+str(self.name)+'.json')
 
     def create(self,path:str):
         self.load_json(path)
@@ -51,26 +52,26 @@ class Game_Render():
         text = str(data["Explanation_text"][0]["text"])
         latin_name = "\lat.: "+data["Explanation_text"][0]["Latin_name"]
         content = "Sternbild: "+data["constellation"][0]["constellation_name"]
-        headline = self.in_common.create_Headline(content+latin_name,50,'inkfree')
+        headline = self.in_common.create_Headline(content+latin_name,int(50*self.in_common.mt),'inkfree')
         self.Instructions = data["Instructions"][0]["Connections"]
-        i = 20
+        i = 20*self.in_common.mx
         for ins in self.Instructions:
-            self.Texts.append(Text(str(ins[0])+"-"+str(ins[1]),(10+i,pygame.display.get_surface().get_height()-25-self.in_common.get_text_size(str(ins),30,"arial")[1]),(199,20,80),pygame.font.SysFont("arial",30)))
-            i += self.in_common.get_text_size(str(ins[0])+"-"+str(ins[1]),40,"arial")[0]+25
-        t_size = self.in_common.get_text_size("Verbinde die Sterne:",30,"arial")
-        self.Texts.append(Text("Verbinde die Sterne:",(20,self.Texts[-1].pos[1]-t_size[1]-40),(173,216,230),pygame.font.SysFont("arial",30)))
+            self.Texts.append(Text(str(ins[0])+"-"+str(ins[1]),(10*self.in_common.mx+i,pygame.display.get_surface().get_height()-25*self.in_common.my-self.in_common.get_text_size(str(ins),int(30*self.in_common.mt),"arial")[1]),(199,20,80),pygame.font.SysFont("arial",int(30*self.in_common.mt))))
+            i += self.in_common.get_text_size(str(ins[0])+"-"+str(ins[1]),int(40*self.in_common.mt),"arial")[0]+25*self.in_common.mx
+        t_size = self.in_common.get_text_size("Verbinde die Sterne:",int(30*self.in_common.mt),"arial")
+        self.Texts.append(Text("Verbinde die Sterne:",(20*self.in_common.mx,self.Texts[-1].pos[1]-t_size[1]-40*self.in_common.my),(173,216,230),pygame.font.SysFont("arial",int(30*self.in_common.mt))))
         self.Buttons.append(self.in_common.create_underline(self.Texts[-1],t_size,(199,20,80),False))
         self.Texts.append(headline[0])
         
         for Stars in data:
             if(Stars[0:4]=="Star"):
                 values = data[Stars][0]
-                self.Star_list.append(Star(values["pos"],values["radius"],values["brightness"],values["active"],Stars[-1],Stars[5:]))
-                positions.append(values["pos"])
-        pos_points = self.get_pos_points(positions,values["radius"])
-        self.mask = self.create_mask(pos_points,values["radius"])
-        dimension = (self.screen.get_width()-pos_points[1]-2*values["radius"]-30,self.screen.get_height())
-        t = self.in_common.format_text(text,dimension,30,[self.screen.get_width()-dimension[0],0])
+                self.Star_list.append(Star([values["pos"][0]*self.in_common.mx,values["pos"][1]*self.in_common.my],values["radius"]*self.in_common.mt,values["brightness"],values["active"],Stars[-1],Stars[5:]))
+                positions.append([values["pos"][0]*self.in_common.mx,values["pos"][1]*self.in_common.my])
+        pos_points = self.get_pos_points(positions,values["radius"]*self.in_common.mt)
+        self.mask = self.create_mask(pos_points,values["radius"]*self.in_common.mt)
+        dimension = (self.screen.get_width()-pos_points[1]-2*values["radius"]*self.in_common.mt-30*self.in_common.mx,self.screen.get_height())
+        t = self.in_common.format_text(text,dimension,int(30*self.in_common.mt),[self.screen.get_width()-dimension[0],0])
         factor = math.floor(self.get_factor(t))
         for text in t:
             text.change_pos((text.pos[0],text.pos[1]+factor))
@@ -194,35 +195,35 @@ class Game_Lobby():
         self.choosen_level(self.level_name)
     
     def create(self):
-        Headlilne = self.in_common.create_Headline("Sternbilder",100)
+        Headlilne = self.in_common.create_Headline("Sternbilder",int(100*self.in_common.mt))
         caption = Headlilne[0]
         text_size = Headlilne[2]
         self.Texts.append(caption)
         self.Buttons.append(Headlilne[1])
 
-        i = 75
+        i = 75*self.in_common.my
         for k in range(4):
-            self.Buttons.append(Buttons((caption.pos[0]-50,caption.pos[1]+text_size[1]+i),(text_size[0]+100,125),(121,92,174),True,k))
-            i+=200
+            self.Buttons.append(Buttons((caption.pos[0]-50*self.in_common.mx,caption.pos[1]+text_size[1]+i),(text_size[0]+100*self.in_common.mx,125*self.in_common.my),(121,92,174),True,k))
+            i+=200*self.in_common.my
 
         texts = ["Play","Continue","Level","Settings"]
         for k in range(4):
-            text_size = pygame.font.SysFont("arial",50).size(texts[k])
+            text_size = pygame.font.SysFont("arial",int(50*self.in_common.mt)).size(texts[k])
             button = self.Buttons[k+1]
-            button.add_text(Text(texts[k],(button.pos[0]+button.dimensions[0]/2-text_size[0]/2,button.pos[1]+button.dimensions[1]/2-text_size[1]/2),(0,0,0),pygame.font.SysFont("arial",50)))
-        self.Images.append(self.in_common.set_background(os.path.join([x[0] for x in os.walk(os.getcwd())][1], "galaxy.jpg")))
+            button.add_text(Text(texts[k],(button.pos[0]+button.dimensions[0]/2-text_size[0]/2,button.pos[1]+button.dimensions[1]/2-text_size[1]/2),(0,0,0),pygame.font.SysFont("arial",int(50*self.in_common.mt))))
+        self.Images.append(self.in_common.set_background(paths.galaxy))
         self.Images.append(self.in_common.create_shutdown_button())
         
 
     def choosen_level(self, level_name:str):
         text = self.in_common.find_text_object(self.level_name,self.Texts)
         button = self.in_common.find_button_by_text("Level",self.Buttons)
-        text_s = pygame.font.SysFont("arial",30).size(level_name)   
+        text_s = pygame.font.SysFont("arial",int(30*self.in_common.mt)).size(level_name)   
         if text != None:
             text.change_text(level_name)   
             text.change_pos((button.pos[0]+button.dimensions[0]/2-text_s[0]/2,button.pos[1]+button.dimensions[1]-(text_s[1]+5)))
         else:
-            self.Texts.append(Text(level_name,(button.pos[0]+button.dimensions[0]/2-text_s[0]/2,button.pos[1]+button.dimensions[1]-(text_s[1]+5)),(0,0,0),pygame.font.SysFont("arial",30)))
+            self.Texts.append(Text(level_name,(button.pos[0]+button.dimensions[0]/2-text_s[0]/2,button.pos[1]+button.dimensions[1]-(text_s[1]+5)),(0,0,0),pygame.font.SysFont("arial",int(30*self.in_common.mt))))
         self.level_name = level_name
         
     def repaint(self):
@@ -253,23 +254,23 @@ class Level():
         self.create()
 
     def create(self):
-        Headlilne = self.in_common.create_Headline("Level",100)
+        Headlilne = self.in_common.create_Headline("Level",int(100*self.in_common.mt))
         caption = Headlilne[0]
         text_size = Headlilne[2]
         self.Texts.append(caption)
         self.Buttons.append(Headlilne[1])
-        self.Images.append(self.in_common.set_background(os.path.join([x[0] for x in os.walk(os.getcwd())][1], "Level.png")))
+        self.Images.append(self.in_common.set_background(os.path.join(paths.level)))
         self.Images.append(self.in_common.create_shutdown_button())
 
-        i = 75
+        i = 75*self.in_common.my
         for k in range(5):
-            self.Buttons.append(Buttons((caption.pos[0]-250,caption.pos[1]+text_size[1]+i),(text_size[0]+500,125),(7,45,99),True,k))
-            i+=135
+            self.Buttons.append(Buttons((caption.pos[0]-250*self.in_common.mx,caption.pos[1]+text_size[1]+i),(text_size[0]+500*self.in_common.mx,125*self.in_common.my),(7,45,99),True,k))
+            i+=135*self.in_common.my
         texts = ["Adler","Andromeda","Becher","Bootes","Cassiopeia"]
         for k in range(5):
-            text_size = pygame.font.SysFont("arial",50).size(texts[k])
+            text_size = pygame.font.SysFont("arial",int(50*self.in_common.mt)).size(texts[k])
             button = self.Buttons[k+1]
-            button.add_text(Text(texts[k],(button.pos[0]+button.dimensions[0]/2-text_size[0]/2,button.pos[1]+button.dimensions[1]/2-text_size[1]/2),(0,0,0),pygame.font.SysFont("arial",50)))
+            button.add_text(Text(texts[k],(button.pos[0]+button.dimensions[0]/2-text_size[0]/2,button.pos[1]+button.dimensions[1]/2-text_size[1]/2),(0,0,0),pygame.font.SysFont("arial",int(50*self.in_common.mt))))
 
     def repaint(self):
         self.in_common.repaint([self.Images,self.Buttons,self.Texts])
@@ -296,10 +297,12 @@ class Settings():
         self.create()
 
     def create(self):
-        Headlilne = self.in_common.create_Headline("Settings",100)
+        Headlilne = self.in_common.create_Headline("Settings",int(100*self.in_common.mt))
         self.Texts.append(Headlilne[0])
         self.Buttons.append(Headlilne[1])
+        self.Images.append(self.in_common.set_background(paths.settings))
         self.Images.append(self.in_common.create_shutdown_button())
+        self.Images.append(Image((self.screen.get_width()/2,350*self.in_common.my),pygame.image.load(paths.switch[0]),(200,100),True,"set_fullscreen"))
 
     def repaint(self):
         self.in_common.repaint([self.Images,self.Buttons,self.Texts])
