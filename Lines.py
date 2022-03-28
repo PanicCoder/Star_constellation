@@ -1,6 +1,5 @@
 from Stars import Star
 import pygame
-import Konstants as konst
 
 class Line():
 
@@ -12,7 +11,7 @@ class Line():
         self.final = False
 
     def draw(self):
-        pygame.draw.line(konst.screen,self.color,self.pos_start,self.pos_end,self.thickness)
+        pygame.draw.line(pygame.display.get_surface(),self.color,self.pos_start,self.pos_end,self.thickness)
         pygame.display.update()
     
     def update_line(self, position_start:tuple[int,int], position_end:tuple[int,int]):
@@ -28,7 +27,7 @@ class Line():
         return self
         
     def delete(self):
-        pygame.draw.line(konst.screen,(0,0,0),self.pos_start,self.pos_end,self.thickness)
+        pygame.draw.line(pygame.display.get_surface(),(0,0,0),self.pos_start,self.pos_end,self.thickness)
         pygame.display.update()
     
     def get_final(self):

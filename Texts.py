@@ -1,5 +1,4 @@
 import pygame 
-import Konstants as konst
 
 class Text():
 
@@ -11,7 +10,7 @@ class Text():
         
     def draw(self):
         text_surface = self.font.render(self.content,False,self.font_color)
-        konst.screen.blit(text_surface,self.pos)
+        pygame.display.get_surface().blit(text_surface,self.pos)
         pygame.display.update()
 
     def change_text(self, content:str):

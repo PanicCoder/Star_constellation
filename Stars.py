@@ -1,6 +1,5 @@
 import pygame
 from Texts import Text
-import Konstants as konst
 
 class Star():
 
@@ -23,7 +22,7 @@ class Star():
 
     def draw(self):
         if(self.active):
-            pygame.draw.circle(konst.screen,self.color,self.pos,self.radius,0)
+            pygame.draw.circle(pygame.display.get_surface(),self.color,self.pos,self.radius,0)
             self.text.draw()
             pygame.display.update()
 

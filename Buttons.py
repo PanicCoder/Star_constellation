@@ -1,6 +1,5 @@
 import pygame
 from Texts import Text
-import Konstants as konst
 
 class Buttons():
 
@@ -20,8 +19,8 @@ class Buttons():
         #creates mask for collision detection
         self.mask = pygame.Rect(self.pos[0],self.pos[1],self.dimensions[0],self.dimensions[1]) 
 
-    def draw(self):
-        pygame.draw.rect(konst.screen,self.color,(self.pos,self.dimensions),self.filled)
+    def draw(self): 
+        pygame.draw.rect(pygame.display.get_surface(),self.color,(self.pos,self.dimensions),self.filled)
         if self.text != None:
             self.text.draw()
         pygame.display.update()

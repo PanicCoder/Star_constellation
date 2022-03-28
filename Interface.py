@@ -1,6 +1,5 @@
 import pygame
 import Konstants as paths
-import Konstants as konst
 
 from Buttons import Buttons
 from Texts import Text
@@ -8,9 +7,17 @@ from Images import Image
 
 class In_common():
 
-    def __init__(self, object_) -> None:
-        self.object = object_
+    def __init__(self) -> None:
+        self.screen = pygame.display.get_surface()
+        self.mx = self.screen.get_width()/1750
+        self.my = self.screen.get_height()/1000
+        self.mt = self.mx/2 + self.my/2
 
+    def update_window_scale(self):
+        self.mx = self.screen.get_width()/1750
+        self.my = self.screen.get_height()/1000
+        self.mt = self.mx/2 + self.my/2
+        
     def repaint(self, list_to_draw:list):
         #repaints all stored objects
         for list in list_to_draw:
@@ -35,7 +42,7 @@ class In_common():
 
     def create_Headline(self, caption_:str,size : int, font: str or None ="arial", color:tuple or None = (0,0,0)):
         text_size = self.get_text_size(caption_,size,font)
-        caption = Text(caption_,((konst.screen.get_width()/2-text_size[0]/2,40*konst.my)),(194, 194, 214),pygame.font.SysFont(font,size))
+        caption = Text(caption_,((self.screen.get_width()/2-text_size[0]/2,40*self.my)),(194, 194, 214),pygame.font.SysFont(font,size))
         under_line = self.create_underline(caption,text_size,color,True)
         return (caption, under_line,text_size)
     
@@ -56,14 +63,14 @@ class In_common():
                     word_text+=content[0]
                     stop = True
             text_list.append(Text(word_text,tuple(pos),color,pygame.font.SysFont(font,size)))
-            pos[1] += self.get_text_size(word_text,size,font)[1]+10*konst.my       
+            pos[1] += self.get_text_size(word_text,size,font)[1]+10*self.my       
         return text_list
 
     def create_shutdown_button(self):
-        return Image((50*konst.mx,konst.screen.get_height()-150*konst.my),pygame.image.load(paths.exit),(125*konst.mx,125*konst.my),True,"QUIT")
+        return Image((50*self.mx,self.screen.get_height()-150*self.my),pygame.image.load(paths.exit),(125*self.mx,125*self.my),True,"QUIT")
 
     def set_background(self, image_path:str):
-        return Image((0,0),pygame.image.load(image_path),(konst.screen.get_width(),konst.screen.get_height()),False)
+        return Image((0,0),pygame.image.load(image_path),(self.screen.get_width(),self.screen.get_height()),False)
 
     def find_text_object(self,content:str,text_list:list):
         for t in text_list:
