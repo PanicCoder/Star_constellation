@@ -277,7 +277,7 @@ class Level():
         return konst.in_common.check_collision(self.Buttons,self.old_pos)
     
     def check_collision_images(self):
-        return konst.Iin_common.check_collision(self.Images,self.old_pos)
+        return konst.in_common.check_collision(self.Images,self.old_pos)
 
 class Settings():
 
