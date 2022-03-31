@@ -1,3 +1,5 @@
+import json
+import os
 import pygame
 import Konstants as paths
 
@@ -12,6 +14,24 @@ class In_common():
         self.mx = self.screen.get_width()/1750
         self.my = self.screen.get_height()/1000
         self.mt = self.mx/2 + self.my/2
+        self.settings = {}
+        self.sound_effects = {}
+    
+    def load_settings(self):
+        file = open(paths.settings_json)
+        self.settings = json.load(file)
+        file.close()
+
+    def create_music(self):
+        pygame.mixer.music.load(paths.music+"Background_music.mp3")
+        pygame.mixer.music.set_volume(self.settings["sound"][0]["volume_b"])
+        for file in next(os.walk(paths.sound_effects))[2]:
+            self.sound_effects.update({file.split(".")[0]:pygame.mixer.Sound(paths.sound_effects+file)})
+            self.sound_effects[file.split(".")[0]].set_volume(self.settings["sound"][0]["volume_e"])
+
+    def play_sound(self,sound_name):
+        if self.settings["sound"][0]["sound_effects"]:
+            pygame.mixer.Sound.play(self.sound_effects[sound_name])
 
     def update_window_scale(self):
         self.mx = self.screen.get_width()/1750

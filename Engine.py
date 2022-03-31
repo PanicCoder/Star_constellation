@@ -1,3 +1,4 @@
+from importlib.resources import path
 import pygame
 import json
 from Renderer import *
@@ -14,7 +15,10 @@ class Engine():
 
         #Current status of the game: Play,Continue,Level,Settings,Quit
         self.Status = [False,False,False,False,False]
-        self.Level_names = ["Adler","Andromeda","Becher","Bootes","Cassiopeia"]
+        self.Level_names = []
+        for file in next(os.walk(paths.level_json))[2]:
+            self.Level_names.append(file.split(".")[0])
+        self.Level_names.sort()
         self.level_name = self.Level_names[0]
         self.Running = True
         self.freeze = False
@@ -26,16 +30,18 @@ class Engine():
         self.level = Level()
         self.settings = Settings()
         self.object_list = [self.r,self.l,self.level,self.settings]
-        self.load_settings()
-    
-    def load_settings(self):
-        file = open(paths.settings_json)
-        settings = json.load(file)
-        file.close()
-        if settings["window"][0]["fullscreen"]:
+        konst.in_common.load_settings()
+        konst.in_common.create_music()
+        if konst.in_common.settings["window"][0]["fullscreen"]:
             self.screen = pygame.display.set_mode(self.screen.get_size(),pygame.FULLSCREEN)
             in_common.update_window_scale()
-            
+        if konst.in_common.settings["sound"][0]["sound_effects"]:
+            pygame.mixer.music.play(-1)
+    
+    def switch_sound(self):
+        if konst.in_common.settings["sound"][0]["sound_effects"]:
+            pygame.mixer.Sound.play(konst.in_common.sound_effects["switch_window"])
+
     def check_events(self,object):
         pygame.time.wait(10)
         object_type = type(object)
@@ -231,6 +237,7 @@ class Engine():
         
         while self.Running:
             if self.button_reaction(self.l,color=(121,92,174),color_update=(148, 110, 159)) or self.check_events(self.l):
+                self.switch_sound()
                 return
             pygame.time.wait(10)
             
@@ -241,6 +248,7 @@ class Engine():
         exit = False
         while self.Running:
             if exit:
+                self.switch_sound()
                 return
             exit = self.check_events(self.r)
             if not self.freeze:
@@ -254,6 +262,7 @@ class Engine():
         self.level.repaint()
         while self.Running:
             if self.check_events(self.level) or self.button_reaction(self.level,color=(7,45,99),color_update=(34,59,112)):
+                self.switch_sound()
                 return
         pygame.time.wait(10)
 
@@ -262,6 +271,7 @@ class Engine():
         exit = False
         while self.Running:
             if exit:
+                self.switch_sound()
                 return
             exit = self.check_events(self.settings)
             if self.button_reaction(self.settings,color=(7,45,99),color_update=(34,59,112)):

@@ -28,12 +28,14 @@ class Game_Render():
         self.old_pos = pygame.mouse.get_pos()  
 
         self.name = name_
+        self.finished = False
         self.mask = None
         self.create(paths.level_json+str(self.name)+'.json')
 
     def create(self,path:str):
         self.load_json(path)
         self.Line_in_use=Line(self.Star_in_use.get_pos(),pygame.mouse.get_pos())
+
 
     def set_Star_to_use(self, index:int):
         self.Star_in_use=self.Star_list[index]
@@ -131,6 +133,8 @@ class Game_Render():
         return konst.in_common.check_collision(self.Star_list,self.old_pos)
 
     def Lock_line(self, star_to_lock:Star):
+        pygame.mixer.Sound.set_volume(konst.in_common.sound_effects["click"],0.1)
+        pygame.mixer.Sound.play(konst.in_common.sound_effects["click"])
         reverse = False
         ids = [int(self.Star_in_use.id),int(star_to_lock.id)]
         if self.Star_in_use.id == star_to_lock.id:
@@ -176,7 +180,11 @@ class Game_Render():
                 count+=1
         #print(str(len(self.connected_stars))+" | "+str(number_conections))
         if number_conections == count and len(self.connected_stars) == number_conections:
-            return True  
+            if not self.finished:
+                konst.in_common.play_sound("complete")
+            self.finished = True
+            return True
+        self.finished = False  
         return False
     
 class Game_Lobby():
@@ -295,7 +303,7 @@ class Settings():
         self.Buttons.append(Headlilne[1])
         self.Images.append(konst.in_common.set_background(paths.settings))
         self.Images.append(konst.in_common.create_shutdown_button())
-        self.Images.append(Image((konst.in_common.screen.get_width()/2,350*konst.in_common.my),pygame.image.load(paths.switch[0]),(200,100),True,"set_fullscreen"))
+        self.Buttons.append(Buttons((600,600),(10,10),(255,255,0),False,transparent_=True).add_text(Text("Fullscreen",(400,300),(255,0,0),pygame.font.SysFont("arial",20))))
 
     def repaint(self):
         konst.in_common.repaint([self.Images,self.Buttons,self.Texts])

@@ -3,5 +3,13 @@
     {
       "fullscreen": false
     }
+  ],
+  "sound": [
+    {
+      	"background_music": true,
+        "sound_effects":true,
+        "volume_b":0.1,
+        "volume_e":0.1
+    }
   ]
 }

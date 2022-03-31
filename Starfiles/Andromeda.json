@@ -16,7 +16,7 @@
     ],
     "Star_2": [
         {
-            "pos":[800,550],
+            "pos":[650,550],
             "radius":35,
             "brightness":0,
             "active":1
@@ -24,23 +24,31 @@
     ],
     "Star_3": [
         {
-            "pos":[280,100],
-            "radius":30,
-            "brightness":0.35,
+            "pos":[700,350],
+            "radius":20,
+            "brightness":0.55,
             "active":1
         }
     ],
     "Star_4": [
         {
-            "pos":[850,550],
-            "radius":12,
+            "pos":[675,150],
+            "radius":15,
+            "brightness":0.45,
+            "active":1
+        }
+    ],
+    "Star_5": [
+        {
+            "pos":[1000,625],
+            "radius":15,
             "brightness":0.45,
             "active":1
         }
     ],
     "Instructions": [
         {
-            "Connections":[[2,1]]
+            "Connections":[[1,2],[2,3],[2,5],[3,4]]
         }
     ],
     "Explanation_text":[
