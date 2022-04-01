@@ -1,6 +1,7 @@
 import json
 import os
 import pygame
+from Circle import Circle
 import Konstants as paths
 
 from Buttons import Buttons
@@ -49,7 +50,7 @@ class In_common():
     def check_collision(self, collision_list:list, old_pos):
         Collisions = []
         for object in collision_list:
-            if type(object) == Buttons:
+            if type(object) == Buttons or type(object) == Circle:
                 if not object.reactive:
                     continue
             Collisions.append(object.check_collision(old_pos))
@@ -96,11 +97,24 @@ class In_common():
         for t in text_list:
             if t.content == content:
                 return t
+
     def find_button_by_text(self,t:str,button_list:list):
         for button in button_list:
-            if button.text!= None:
-                if button.text.content == t:
-                    return button
+            if button.text!= []:
+                for text in button.text:
+                    if text.content == t:
+                        return button
+
+    def create_tabel(self, table_size:int, position, dimensions, gap, text_size_caption,color,reactive:bool, text_list:list, text_size_text:int,font_name:str,):
+        B=[]
+        i = gap[0][0]*self.my
+        for k in range(table_size):
+            B.append(Buttons((position[0]-gap[1][0]*self.mx,position[1]+text_size_caption[1]-gap[1][1]+i),(text_size_caption[0]+dimensions[0]*self.mx,dimensions[1]*self.my),color,reactive,k).add_text(text_list[k],text_size_text,font_name))
+            i+=gap[0][1]*self.my
+        return B
+
+    def create_toggle_switch(self, position:tuple, radius:int, dimension:tuple, color_b:tuple, color_sw:tuple, action:str):
+        return [[Circle(position,radius,color_b,False),Circle((position[0]+dimension[0],position[1]),radius,color_b,False),Circle(position,radius-8*self.mt,color_sw,True,action_ = action)],[Buttons((position[0],position[1]-radius),dimension,color_b,False).add_text("switch1",0,"arial",)]]
 
     def create_underline(self,caption:Text,text_size:tuple,color,minigate_space:bool):
         space = 10 if minigate_space else 0

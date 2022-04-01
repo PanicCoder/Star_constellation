@@ -1,7 +1,9 @@
+from matplotlib.pyplot import text
 import pygame
 import json
 import math
 import os
+from Circle import Circle
 import Konstants as paths
 import Konstants as konst
 
@@ -103,8 +105,9 @@ class Game_Render():
     def get_factor(self,text_l:list):
         start_y = text_l[0].pos[1]
         length = text_l[-1].pos[1] - start_y
-        y = konst.in_common.screen.get_height()-50-start_y
+        y = konst.in_common.screen.get_height()-50*konst.in_common.my-start_y
         start_point = start_y+((y/2)-(length/2))
+        #factor for text-centering
         return start_point -start_y
 
     def repaint(self,dont_check:bool or None = True):
@@ -201,21 +204,9 @@ class Game_Lobby():
     
     def create(self):
         Headlilne = konst.in_common.create_Headline("Sternbilder",int(100*konst.in_common.mt))
-        caption = Headlilne[0]
-        text_size = Headlilne[2]
-        self.Texts.append(caption)
+        self.Texts.append(Headlilne[0])
         self.Buttons.append(Headlilne[1])
-
-        i = 75*konst.in_common.my
-        for k in range(4):
-            self.Buttons.append(Buttons((caption.pos[0]-50*konst.in_common.mx,caption.pos[1]+text_size[1]+i),(text_size[0]+100*konst.in_common.mx,125*konst.in_common.my),(121,92,174),True,k))
-            i+=200*konst.in_common.my
-
-        texts = ["Play","Continue","Level","Settings"]
-        for k in range(4):
-            text_size = pygame.font.SysFont("arial",int(50*konst.in_common.mt)).size(texts[k])
-            button = self.Buttons[k+1]
-            button.add_text(Text(texts[k],(button.pos[0]+button.dimensions[0]/2-text_size[0]/2,button.pos[1]+button.dimensions[1]/2-text_size[1]/2),(0,0,0),pygame.font.SysFont("arial",int(50*konst.in_common.mt))))
+        self.Buttons+=konst.in_common.create_tabel(4,Headlilne[0].pos,(100,125),[(75,200),(50,0)],Headlilne[2],(121,92,174),True,["Play","Continue","Level","Settings"],50,"arial")
         self.Images.append(konst.in_common.set_background(paths.galaxy))
         self.Images.append(konst.in_common.create_shutdown_button())
         
@@ -258,22 +249,16 @@ class Level():
 
     def create(self):
         Headlilne = konst.in_common.create_Headline("Level",int(100*konst.in_common.mt))
-        caption = Headlilne[0]
-        text_size = Headlilne[2]
-        self.Texts.append(caption)
+        self.Texts.append(Headlilne[0])
         self.Buttons.append(Headlilne[1])
         self.Images.append(konst.in_common.set_background(os.path.join(paths.level)))
         self.Images.append(konst.in_common.create_shutdown_button())
-
-        i = 75*konst.in_common.my
-        for k in range(5):
-            self.Buttons.append(Buttons((caption.pos[0]-250*konst.in_common.mx,caption.pos[1]+text_size[1]+i),(text_size[0]+500*konst.in_common.mx,125*konst.in_common.my),(7,45,99),True,k))
-            i+=135*konst.in_common.my
-        texts = ["Adler","Andromeda","Becher","Bootes","Cassiopeia"]
-        for k in range(5):
-            text_size = pygame.font.SysFont("arial",int(50*konst.in_common.mt)).size(texts[k])
-            button = self.Buttons[k+1]
-            button.add_text(Text(texts[k],(button.pos[0]+button.dimensions[0]/2-text_size[0]/2,button.pos[1]+button.dimensions[1]/2-text_size[1]/2),(0,0,0),pygame.font.SysFont("arial",int(50*konst.in_common.mt))))
+        texts = []
+        for file in next(os.walk(paths.level_json))[2]:
+            texts.append(file.split(".")[0])
+            texts.sort()
+        self.Buttons+= konst.in_common.create_tabel(len(texts),Headlilne[0].pos,(500,125),[(75,135),(250,0)],Headlilne[2],(7,45,99),True,texts,50,"arial")
+        
 
     def repaint(self):
         konst.in_common.repaint([self.Images,self.Buttons,self.Texts])
@@ -294,19 +279,26 @@ class Settings():
         self.Buttons:Buttons = []
         self.Texts :Text = []
         self.Images :Image = []
+        self.Circle: Circle = []
         self.old_pos = pygame.mouse.get_pos()  
         self.create()
 
     def create(self):
-        Headlilne = konst.in_common.create_Headline("Settings",int(100*konst.in_common.mt))
-        self.Texts.append(Headlilne[0])
-        self.Buttons.append(Headlilne[1])
+        Headline = konst.in_common.create_Headline("Settings",int(100*konst.in_common.mt))
+        self.Texts.append(Headline[0])
+        self.Buttons.append(Headline[1])
         self.Images.append(konst.in_common.set_background(paths.settings))
         self.Images.append(konst.in_common.create_shutdown_button())
-        self.Buttons.append(Buttons((600,600),(10,10),(255,255,0),False,transparent_=True).add_text(Text("Fullscreen",(400,300),(255,0,0),pygame.font.SysFont("arial",20))))
+        self.Buttons.append(Buttons((Headline[0].pos[0]-450*konst.in_common.mx,Headline[0].pos[1]+Headline[2][1]+75*konst.in_common.my),(Headline[2][0]+1000*konst.in_common.mx,75*konst.in_common.my),(255,105,200),False,transparent_=True).add_text("Fullscreen",50,"arial","left"))
+        button = konst.in_common.find_button_by_text("Fullscreen",self.Buttons)
+        radius = button.dimensions[1]/2-10*konst.in_common.my
+        x = konst.in_common.create_toggle_switch((button.pos[0]+button.dimensions[0]-175*konst.in_common.mx,button.pos[1]+button.dimensions[1]/2),radius,(button.dimensions[0]-(button.dimensions[0]-125*konst.in_common.mx),radius*2),(0,0,0),(255,0,0),"FULLSCREEN")
+        self.Circle += x[0]
+        self.Buttons+= x[1]
+        #(255,105,200)
 
     def repaint(self):
-        konst.in_common.repaint([self.Images,self.Buttons,self.Texts])
+        konst.in_common.repaint([self.Images,self.Buttons,self.Texts,self.Circle])
 
     def check_collision(self):
         return konst.in_common.check_collision(self.Buttons,self.old_pos)
@@ -316,3 +308,20 @@ class Settings():
         
     def check_collision_images(self):
         return konst.in_common.check_collision(self.Images,self.old_pos)
+
+    def check_collision_circle(self):
+        return konst.in_common.check_collision(self.Circle, self.old_pos)
+
+    def flip_switch_state(self, circle:Circle):
+        button = konst.in_common.find_button_by_text("switch1",self.Buttons)
+        if circle.color == (0,255,0):
+            circle.delete()
+            circle.color = (255,0,0)  
+            circle.change_pos((circle.pos[0]-button.dimensions[0],circle.pos[1]))
+        else: 
+            circle.delete()
+            circle.color = (0,255,0)
+            circle.change_pos((circle.pos[0]+button.dimensions[0],circle.pos[1]))
+        circle.update_mask()
+        circle.draw()
+        

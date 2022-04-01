@@ -276,5 +276,9 @@ class Engine():
             exit = self.check_events(self.settings)
             if self.button_reaction(self.settings,color=(7,45,99),color_update=(34,59,112)):
                 pass
+            circle_collision = self.settings.check_collision_circle()
+            if circle_collision[0]:
+                if circle_collision[1].get_action() == "FULLSCREEN" and pygame.mouse.get_pressed()[0]:
+                    self.settings.flip_switch_state(circle_collision[1])
             pygame.time.wait(10)
             

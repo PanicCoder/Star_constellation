@@ -1,5 +1,6 @@
 import pygame
 from Texts import Text
+import Konstants as konst
 
 class Buttons():
 
@@ -11,7 +12,7 @@ class Buttons():
         self.clock = pygame.time.Clock()
         self.color = color_
         self.reactive = reactive_
-        self.text = None
+        self.text = []
         self.filled = filled_
         self.transparent = transparent_
 
@@ -22,14 +23,15 @@ class Buttons():
 
     def draw(self):
         if self.transparent:
-            s = pygame.Surface((1000,50))
+            s = pygame.Surface(self.dimensions)
             s.set_alpha(128)
-            s.fill((255,105,200))
-            pygame.display.get_surface().blit(s,(400,300))
+            s.fill(self.color)
+            pygame.display.get_surface().blit(s,self.pos)
         else: 
             pygame.draw.rect(pygame.display.get_surface(),self.color,(self.pos,self.dimensions),self.filled)
         if self.text != None:
-            self.text.draw()
+            for t in self.text:
+                t.draw()
         pygame.display.update()
 
     def update_color(self, color_:tuple[int,int,int]):
@@ -41,8 +43,14 @@ class Buttons():
     def check_collision(self, pos:tuple[int,int]):
         return (self.mask.collidepoint(pos[0], pos[1]),self)
 
-    def add_text(self, text_:Text):
-        self.text = text_
+    def add_text(self, text_:str, size_,font_name:str, orientation:str or None = "center"):
+        text_size = pygame.font.SysFont(font_name,int(size_*konst.in_common.mt)).size(text_)
+        if orientation == "center":
+            self.text.append(Text(text_,(self.pos[0]+self.dimensions[0]/2-text_size[0]/2,self.pos[1]+self.dimensions[1]/2-text_size[1]/2),(0,0,0),pygame.font.SysFont(font_name,int(size_*konst.in_common.mt))))
+        elif orientation == "left":
+            self.text.append(Text(text_,(self.pos[0]+25*konst.in_common.mx,self.pos[1]+self.dimensions[1]/2-text_size[1]/2),(0,0,0),pygame.font.SysFont(font_name,int(size_*konst.in_common.mt))))
+        elif orientation == "right":
+            self.text.append(Text(text_,(self.pos[0]+self.dimensions[0]-text_size[0]-25*konst.in_common.mx,self.pos[1]+self.dimensions[1]/2-text_size[1]/2),(0,0,0),pygame.font.SysFont(font_name,int(size_*konst.in_common.mt))))
         return self
 
     def get_pos(self):
