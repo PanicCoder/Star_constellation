@@ -14,9 +14,11 @@ class Circle():
         #creates mask for collision detection
         self.mask = pygame.Rect(self.pos[0]-self.radius,self.pos[1]-self.radius,self.radius*2,self.radius*2) 
 
-    def draw(self):
-        pygame.draw.circle(pygame.display.get_surface(),self.color,self.pos,self.radius,0)
-        pygame.display.update()
+    def draw(self, r:bool or None = True):
+        if r:
+            pygame.draw.circle(pygame.display.get_surface(),self.color,self.pos,self.radius,0)
+            pygame.display.update()
+
     
     def change_pos(self, position:tuple[int,int]):
         self.pos = position
@@ -27,9 +29,14 @@ class Circle():
     def check_collision(self, pos:tuple[int,int]):
         return (self.mask.collidepoint(pos[0], pos[1]),self)
 
-    def delete(self):
-        self.color = (0,0,0)
-        self.draw()
+
+    def delete(self, r:bool or None = True):
+        if r:
+            c = self.color
+            self.color = (0,0,0)
+            self.draw()
+            self.color = c
+
     def update_mask(self):
         self.mask = pygame.Rect(self.pos[0]-self.radius,self.pos[1]-self.radius,self.radius*2,self.radius*2)
         

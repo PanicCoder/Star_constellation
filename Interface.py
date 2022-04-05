@@ -1,5 +1,6 @@
 import json
 import os
+import math
 import pygame
 from Circle import Circle
 import Konstants as paths
@@ -17,21 +18,22 @@ class In_common():
         self.mt = self.mx/2 + self.my/2
         self.settings = {}
         self.sound_effects = {}
-    
+        self.percentage = None
+
     def load_settings(self):
         file = open(paths.settings_json)
-        self.settings = json.load(file)
+        self.settings = json.load(file)["settings"][0]
         file.close()
 
     def create_music(self):
         pygame.mixer.music.load(paths.music+"Background_music.mp3")
-        pygame.mixer.music.set_volume(self.settings["sound"][0]["volume_b"])
+        pygame.mixer.music.set_volume(self.settings["volume_b"])
         for file in next(os.walk(paths.sound_effects))[2]:
             self.sound_effects.update({file.split(".")[0]:pygame.mixer.Sound(paths.sound_effects+file)})
-            self.sound_effects[file.split(".")[0]].set_volume(self.settings["sound"][0]["volume_e"])
+            self.sound_effects[file.split(".")[0]].set_volume(self.settings["volume_e"])
 
     def play_sound(self,sound_name):
-        if self.settings["sound"][0]["sound_effects"]:
+        if self.settings["sound_effects"]:
             pygame.mixer.Sound.play(self.sound_effects[sound_name])
 
     def update_window_scale(self):
@@ -44,7 +46,6 @@ class In_common():
         for list in list_to_draw:
             for element in list:
                 element.draw()
-
         pygame.display.update()          
 
     def check_collision(self, collision_list:list, old_pos):
@@ -104,18 +105,62 @@ class In_common():
                 for text in button.text:
                     if text.content == t:
                         return button
+    
+    def find_button_by_action(self,a:str,button_list:list):
+        for button in button_list:
+            if button.action!= None:
+                if button.action == a:
+                    return button
+    
+    def flip_switch_state(self, circle:Circle, button_list:list, repaint:bool or None = True):
+        button = self.find_button_by_text("switch_"+str(circle.action), button_list)
+        circle.delete(repaint)
+        values = [(255,0,0),circle.pos[0]-button.dimensions[0]] if circle.color == (0,255,0) else [(0,255,0),circle.pos[0]+button.dimensions[0]]
+        circle.color = values[0]
+        circle.change_pos((values[1],circle.pos[1]))
+        circle.update_mask()
+        circle.draw(repaint)
+    
+    def update_slider(self,circle:Circle,b_list:Buttons):
+        pos = pygame.mouse.get_pos()[0]
+        button = self.find_button_by_text("slider_"+str(circle.action),b_list)
+        parent_b = self.find_button_by_action(str(circle.action),b_list)
+        if button.pos[0] <= pos and button.pos[0]+button.dimensions[0] >= pos:
+            circle.delete()
+            circle.pos = (pos,circle.pos[1])
+            circle.update_mask()
+            parent_b.draw()
+            button.draw()
+            circle.draw()
+            self.Slider_percentage(button,parent_b,pos)
 
-    def create_tabel(self, table_size:int, position, dimensions, gap, text_size_caption,color,reactive:bool, text_list:list, text_size_text:int,font_name:str,):
+    def Slider_percentage(self,button:Buttons,parent_button:Buttons,pos:int):
+        current_value = pos-button.pos[0]
+        max_value = button.dimensions[0]
+        self.percentage = current_value/max_value
+        parent_button.text[1].content = str(int(round(self.percentage*100,0)))+"%"
+        return self.percentage
+
+    def create_tabel(self, table_size:int, position, dimensions, gap, text_size_caption,color,reactive:bool, text_list:list, text_size_text:int,font_name:str, action:list, text_pos:str or None = "center",transparence:float or None = 1.0):
         B=[]
         i = gap[0][0]*self.my
         for k in range(table_size):
-            B.append(Buttons((position[0]-gap[1][0]*self.mx,position[1]+text_size_caption[1]-gap[1][1]+i),(text_size_caption[0]+dimensions[0]*self.mx,dimensions[1]*self.my),color,reactive,k).add_text(text_list[k],text_size_text,font_name))
+            B.append(Buttons((position[0]-gap[1][0]*self.mx,position[1]+text_size_caption[1]-gap[1][1]+i),(text_size_caption[0]+dimensions[0]*self.mx,dimensions[1]*self.my),color,reactive,action[k],transparent_= transparence).add_text(text_list[k],text_size_text,font_name,text_pos))
             i+=gap[0][1]*self.my
         return B
 
-    def create_toggle_switch(self, position:tuple, radius:int, dimension:tuple, color_b:tuple, color_sw:tuple, action:str):
-        return [[Circle(position,radius,color_b,False),Circle((position[0]+dimension[0],position[1]),radius,color_b,False),Circle(position,radius-8*self.mt,color_sw,True,action_ = action)],[Buttons((position[0],position[1]-radius),dimension,color_b,False).add_text("switch1",0,"arial",)]]
+    def create_toggle_switch(self,button:Buttons, color_b:tuple, color_sw:tuple, On:bool,action:str):
+        position = (button.pos[0]+button.dimensions[0]-175*self.mx,button.pos[1]+button.dimensions[1]/2)
+        radius = button.dimensions[1]/2-10*self.my
+        dimension = (button.dimensions[0]-(button.dimensions[0]-125*self.mx),radius*2)
+        return [[Circle(position,radius,color_b,False),Circle((position[0]+dimension[0],position[1]),radius,color_b,False),Circle(position,radius-8*self.mt,color_sw,True,action_ = action) if On else Circle(((position[0]+dimension[0],position[1])),radius-8*self.mt,color_sw,True,action_ = action)],[Buttons((position[0],position[1]-radius),dimension,color_b,False).add_text("switch_"+str(action),0,"arial",)]]
 
+    def create_slider(self, button:Buttons, color_b:tuple, color_circle:tuple, action:str,percentage:float):
+        position = (button.pos[0]+button.dimensions[0]-225*self.mx,button.pos[1]+button.dimensions[1]/2)
+        radius = math.floor(button.dimensions[1]/3-10*self.my)
+        dimension = (button.dimensions[0]-(button.dimensions[0]-150*self.mx),button.dimensions[1]-10*self.my)
+        return[Buttons((position[0],position[1]-radius/2),(dimension[0],radius),color_b,False).add_text("slider_"+str(action),0,"arial"),Circle((int(position[0]+dimension[0]*percentage),position[1]),radius,color_circle,True,action)]
+    
     def create_underline(self,caption:Text,text_size:tuple,color,minigate_space:bool):
         space = 10 if minigate_space else 0
         return Buttons((caption.pos[0],caption.pos[1]+text_size[1]-space),(text_size[0],4),color,False)

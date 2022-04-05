@@ -19,6 +19,10 @@ class Line():
         self.pos_end = position_end
         self.draw()
 
+    def update_pos(self, s_pos,end_pos):
+        self.pos_start = s_pos
+        self.pos_end = end_pos
+        
     def final_line(self, Star_start:Star, Star_end:Star):
         self.pos_start = Star_start.get_pos()
         self.pos_end = Star_end.get_pos()

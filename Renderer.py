@@ -1,12 +1,11 @@
-from matplotlib.pyplot import text
 import pygame
 import json
 import math
 import os
-from Circle import Circle
 import Konstants as paths
-import Konstants as konst
 
+from Konstants import in_common as ic
+from Circle import Circle
 from Stars import Star
 from Lines import Line
 from Texts import Text
@@ -44,7 +43,7 @@ class Game_Render():
         
     def update_line_in_use(self):
         self.Line_in_use.delete()
-        self.Line_in_use = Line(self.Star_in_use.get_pos(),pygame.mouse.get_pos())
+        self.Line_in_use.update_pos(self.Star_in_use.get_pos(),pygame.mouse.get_pos())
         self.Line_in_use.draw()
 
     def load_json(self,path):
@@ -55,26 +54,26 @@ class Game_Render():
         text = str(data["Explanation_text"][0]["text"])
         latin_name = "\lat.: "+data["Explanation_text"][0]["Latin_name"]
         content = "Sternbild: "+data["constellation"][0]["constellation_name"]
-        headline = konst.in_common.create_Headline(content+latin_name,int(50*konst.in_common.mt),'inkfree')
+        headline = ic.create_Headline(content+latin_name,int(50*ic.mt),'inkfree')
         self.Instructions = data["Instructions"][0]["Connections"]
-        i = 20*konst.in_common.mx
+        i = 20*ic.mx
         for ins in self.Instructions:
-            self.Texts.append(Text(str(ins[0])+"-"+str(ins[1]),(10*konst.in_common.mx+i,pygame.display.get_surface().get_height()-25*konst.in_common.my-konst.in_common.get_text_size(str(ins),int(30*konst.in_common.mt),"arial")[1]),(199,20,80),pygame.font.SysFont("arial",int(30*konst.in_common.mt))))
-            i += konst.in_common.get_text_size(str(ins[0])+"-"+str(ins[1]),int(40*konst.in_common.mt),"arial")[0]+25*konst.in_common.mx
-        t_size = konst.in_common.get_text_size("Verbinde die Sterne:",int(30*konst.in_common.mt),"arial")
-        self.Texts.append(Text("Verbinde die Sterne:",(20*konst.in_common.mx,self.Texts[-1].pos[1]-t_size[1]-40*konst.in_common.my),(173,216,230),pygame.font.SysFont("arial",int(30*konst.in_common.mt))))
-        self.Buttons.append(konst.in_common.create_underline(self.Texts[-1],t_size,(199,20,80),False))
+            self.Texts.append(Text(str(ins[0])+"-"+str(ins[1]),(10*ic.mx+i,pygame.display.get_surface().get_height()-25*ic.my-ic.get_text_size(str(ins),int(30*ic.mt),"arial")[1]),(199,20,80),pygame.font.SysFont("arial",int(30*ic.mt))))
+            i += ic.get_text_size(str(ins[0])+"-"+str(ins[1]),int(40*ic.mt),"arial")[0]+25*ic.mx
+        t_size = ic.get_text_size("Verbinde die Sterne:",int(30*ic.mt),"arial")
+        self.Texts.append(Text("Verbinde die Sterne:",(20*ic.mx,self.Texts[-1].pos[1]-t_size[1]-40*ic.my),(173,216,230),pygame.font.SysFont("arial",int(30*ic.mt))))
+        self.Buttons.append(ic.create_underline(self.Texts[-1],t_size,(199,20,80),False))
         self.Texts.append(headline[0])
         
         for Stars in data:
             if(Stars[0:4]=="Star"):
                 values = data[Stars][0]
-                self.Star_list.append(Star([values["pos"][0]*konst.in_common.mx,values["pos"][1]*konst.in_common.my],values["radius"]*konst.in_common.mt,values["brightness"],values["active"],Stars[-1],Stars[5:]))
-                positions.append([values["pos"][0]*konst.in_common.mx,values["pos"][1]*konst.in_common.my])
-        pos_points = self.get_pos_points(positions,values["radius"]*konst.in_common.mt)
-        self.mask = self.create_mask(pos_points,values["radius"]*konst.in_common.mt)
-        dimension = (konst.in_common.screen.get_width()-pos_points[1]-2*values["radius"]*konst.in_common.mt-30*konst.in_common.mx,konst.in_common.screen.get_height())
-        t = konst.in_common.format_text(text,dimension,int(30*konst.in_common.mt),[konst.in_common.screen.get_width()-dimension[0],0])
+                self.Star_list.append(Star([values["pos"][0]*ic.mx,values["pos"][1]*ic.my],values["radius"]*ic.mt,values["brightness"],values["active"],Stars[-1],Stars[5:]))
+                positions.append([values["pos"][0]*ic.mx,values["pos"][1]*ic.my])
+        pos_points = self.get_pos_points(positions,values["radius"]*ic.mt)
+        self.mask = self.create_mask(pos_points,values["radius"]*ic.mt)
+        dimension = (ic.screen.get_width()-pos_points[1]-2*values["radius"]*ic.mt-30*ic.mx,ic.screen.get_height())
+        t = ic.format_text(text,dimension,int(30*ic.mt),[ic.screen.get_width()-dimension[0],0])
         factor = math.floor(self.get_factor(t))
         for text in t:
             text.change_pos((text.pos[0],text.pos[1]+factor))
@@ -83,8 +82,8 @@ class Game_Render():
 
 
     def get_pos_points(self,postion_list, radius:int):
-        nearest_x = konst.in_common.screen.get_height()
-        nearest_y = konst.in_common.screen.get_height()
+        nearest_x = ic.screen.get_height()
+        nearest_y = ic.screen.get_height()
         furthest_x = 0
         furthest_y = 0
         for pos in postion_list:
@@ -105,19 +104,19 @@ class Game_Render():
     def get_factor(self,text_l:list):
         start_y = text_l[0].pos[1]
         length = text_l[-1].pos[1] - start_y
-        y = konst.in_common.screen.get_height()-50*konst.in_common.my-start_y
+        y = ic.screen.get_height()-50*ic.my-start_y
         start_point = start_y+((y/2)-(length/2))
         #factor for text-centering
         return start_point -start_y
 
     def repaint(self,dont_check:bool or None = True):
         if dont_check:
-            konst.in_common.repaint([self.Images,self.Final_lines,self.Buttons,self.Star_list,self.Texts])
+            ic.repaint([self.Images,self.Final_lines,self.Buttons,self.Star_list,self.Texts])
             return
         if not self.mask.collidepoint(pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1]):
-            konst.in_common.repaint([self.Images,self.Final_lines,self.Buttons,self.Star_list,self.Texts])
+            ic.repaint([self.Images,self.Final_lines,self.Buttons,self.Star_list,self.Texts])
         else:
-            konst.in_common.repaint([self.Final_lines,self.Star_list]) 
+            ic.repaint([self.Final_lines,self.Star_list]) 
 
     def update_line(self):
         pos = pygame.mouse.get_pos()
@@ -133,11 +132,11 @@ class Game_Render():
         self.Line_in_use.delete()
 
     def check_collision(self):
-        return konst.in_common.check_collision(self.Star_list,self.old_pos)
+        return ic.check_collision(self.Star_list,self.old_pos)
 
     def Lock_line(self, star_to_lock:Star):
-        pygame.mixer.Sound.set_volume(konst.in_common.sound_effects["click"],0.1)
-        pygame.mixer.Sound.play(konst.in_common.sound_effects["click"])
+        pygame.mixer.Sound.set_volume(ic.sound_effects["click"],0.1)
+        pygame.mixer.Sound.play(ic.sound_effects["click"])
         reverse = False
         ids = [int(self.Star_in_use.id),int(star_to_lock.id)]
         if self.Star_in_use.id == star_to_lock.id:
@@ -162,7 +161,6 @@ class Game_Render():
         self.Star_in_use = star_to_lock
         self.Line_in_use = Line(star_to_lock.get_pos(),pygame.mouse.get_pos())
         
-        
     def update_mouse_pos(self):
         self.old_pos = pygame.mouse.get_pos()
 
@@ -171,7 +169,7 @@ class Game_Render():
             stars.animation()
 
     def update_instroctions(self,ids):
-        text = konst.in_common.find_text_object(str(ids[0])+"-"+str(ids[1]),self.Texts)
+        text = ic.find_text_object(str(ids[0])+"-"+str(ids[1]),self.Texts)
         text.change_color((199,20,80) if text.font_color == (20,199,80) else (20,199,80))
         text.draw()
 
@@ -184,7 +182,7 @@ class Game_Render():
         #print(str(len(self.connected_stars))+" | "+str(number_conections))
         if number_conections == count and len(self.connected_stars) == number_conections:
             if not self.finished:
-                konst.in_common.play_sound("complete")
+                ic.play_sound("complete")
             self.finished = True
             return True
         self.finished = False  
@@ -203,39 +201,38 @@ class Game_Lobby():
         self.choosen_level(self.level_name)
     
     def create(self):
-        Headlilne = konst.in_common.create_Headline("Sternbilder",int(100*konst.in_common.mt))
+        Headlilne = ic.create_Headline("Sternbilder",int(100*ic.mt))
         self.Texts.append(Headlilne[0])
         self.Buttons.append(Headlilne[1])
-        self.Buttons+=konst.in_common.create_tabel(4,Headlilne[0].pos,(100,125),[(75,200),(50,0)],Headlilne[2],(121,92,174),True,["Play","Continue","Level","Settings"],50,"arial")
-        self.Images.append(konst.in_common.set_background(paths.galaxy))
-        self.Images.append(konst.in_common.create_shutdown_button())
+        self.Buttons+=ic.create_tabel(4,Headlilne[0].pos,(100,125),[(75,200),(50,0)],Headlilne[2],(121,92,174),True,["Play","Continue","Level","Settings"],50,"arial",[0,1,2,3])
+        self.Images += [ic.set_background(paths.galaxy),ic.create_shutdown_button()]
         
 
     def choosen_level(self, level_name:str):
-        text = konst.in_common.find_text_object(self.level_name,self.Texts)
-        button = konst.in_common.find_button_by_text("Level",self.Buttons)
-        text_s = pygame.font.SysFont("arial",int(30*konst.in_common.mt)).size(level_name)   
+        text = ic.find_text_object(self.level_name,self.Texts)
+        button = ic.find_button_by_text("Level",self.Buttons)
+        text_s = pygame.font.SysFont("arial",int(30*ic.mt)).size(level_name)   
         if text != None:
             text.change_text(level_name)   
             text.change_pos((button.pos[0]+button.dimensions[0]/2-text_s[0]/2,button.pos[1]+button.dimensions[1]-(text_s[1]+5)))
         else:
-            self.Texts.append(Text(level_name,(button.pos[0]+button.dimensions[0]/2-text_s[0]/2,button.pos[1]+button.dimensions[1]-(text_s[1]+5)),(0,0,0),pygame.font.SysFont("arial",int(30*konst.in_common.mt))))
+            self.Texts.append(Text(level_name,(button.pos[0]+button.dimensions[0]/2-text_s[0]/2,button.pos[1]+button.dimensions[1]-(text_s[1]+5)),(0,0,0),pygame.font.SysFont("arial",int(30*ic.mt))))
         self.level_name = level_name
         
     def repaint(self):
-        konst.in_common.repaint([self.Images,self.Buttons,self.Texts])
+        ic.repaint([self.Images,self.Buttons,self.Texts])
 
     def check_collision(self):
-        return konst.in_common.check_collision(self.Buttons,self.old_pos)
+        return ic.check_collision(self.Buttons,self.old_pos)
     
     def check_collision_images(self):
-        return konst.in_common.check_collision(self.Images,self.old_pos)
+        return ic.check_collision(self.Images,self.old_pos)
 
     def update_mouse_pos(self):
         self.old_pos = pygame.mouse.get_pos()
 
     def get_level_text(self):
-        return konst.in_common.find_text_object(self.level_name,self.Texts)
+        return ic.find_text_object(self.level_name,self.Texts)
 
 class Level():
 
@@ -248,29 +245,29 @@ class Level():
         self.create()
 
     def create(self):
-        Headlilne = konst.in_common.create_Headline("Level",int(100*konst.in_common.mt))
+        Headlilne = ic.create_Headline("Level",int(100*ic.mt))
         self.Texts.append(Headlilne[0])
         self.Buttons.append(Headlilne[1])
-        self.Images.append(konst.in_common.set_background(os.path.join(paths.level)))
-        self.Images.append(konst.in_common.create_shutdown_button())
+        self.Images.append(ic.set_background(os.path.join(paths.level)))
+        self.Images.append(ic.create_shutdown_button())
         texts = []
         for file in next(os.walk(paths.level_json))[2]:
             texts.append(file.split(".")[0])
             texts.sort()
-        self.Buttons+= konst.in_common.create_tabel(len(texts),Headlilne[0].pos,(500,125),[(75,135),(250,0)],Headlilne[2],(7,45,99),True,texts,50,"arial")
+        self.Buttons+= ic.create_tabel(len(texts),Headlilne[0].pos,(500,125),[(75,135),(250,0)],Headlilne[2],(7,45,99),True,texts,50,"arial",[i for i in range(len(texts))])
         
 
     def repaint(self):
-        konst.in_common.repaint([self.Images,self.Buttons,self.Texts])
+        ic.repaint([self.Images,self.Buttons,self.Texts])
 
     def update_mouse_pos(self):
         self.old_pos = pygame.mouse.get_pos()
 
     def check_collision(self):
-        return konst.in_common.check_collision(self.Buttons,self.old_pos)
+        return ic.check_collision(self.Buttons,self.old_pos)
     
     def check_collision_images(self):
-        return konst.in_common.check_collision(self.Images,self.old_pos)
+        return ic.check_collision(self.Images,self.old_pos)
 
 class Settings():
 
@@ -284,44 +281,58 @@ class Settings():
         self.create()
 
     def create(self):
-        Headline = konst.in_common.create_Headline("Settings",int(100*konst.in_common.mt))
+        Headline = ic.create_Headline("Settings",int(100*ic.mt))
         self.Texts.append(Headline[0])
         self.Buttons.append(Headline[1])
-        self.Images.append(konst.in_common.set_background(paths.settings))
-        self.Images.append(konst.in_common.create_shutdown_button())
-        self.Buttons.append(Buttons((Headline[0].pos[0]-450*konst.in_common.mx,Headline[0].pos[1]+Headline[2][1]+75*konst.in_common.my),(Headline[2][0]+1000*konst.in_common.mx,75*konst.in_common.my),(255,105,200),False,transparent_=True).add_text("Fullscreen",50,"arial","left"))
-        button = konst.in_common.find_button_by_text("Fullscreen",self.Buttons)
-        radius = button.dimensions[1]/2-10*konst.in_common.my
-        x = konst.in_common.create_toggle_switch((button.pos[0]+button.dimensions[0]-175*konst.in_common.mx,button.pos[1]+button.dimensions[1]/2),radius,(button.dimensions[0]-(button.dimensions[0]-125*konst.in_common.mx),radius*2),(0,0,0),(255,0,0),"FULLSCREEN")
-        self.Circle += x[0]
-        self.Buttons+= x[1]
+        self.Images += [ic.set_background(paths.settings),ic.create_shutdown_button()]
+        
+        actions = ["fullscreen","background_music","sound_effects"]
+        table = ic.create_tabel(len(actions),(Headline[0].pos),(1000,75),[(75,100),(500,0)],Headline[2],(255,105,200),False,["Fullscreen","Music","Sound_effects"],40,"arial",actions,text_pos="left",transparence=0.5)
+        for indx,buttons in enumerate(table):
+            self.Buttons.append(buttons)
+            x = ic.create_toggle_switch(buttons,(0,0,0),(255,0,0),True,actions[indx])
+            self.Circle += x[0]
+            self.Buttons += x[1]
+            if ic.settings[x[0][-1].get_action()]:  
+                self.flip_switch_state(x[0][-1], False)
+        actions2 =["volume_b","volume_e"]
+        table2 = ic.create_tabel(len(actions2),(Headline[1].pos[0],self.Buttons[-1].pos[1]),(1000,75),[(75,100),(500,0)],Headline[2],(255,105,200),False,["Music_volume","Sound_effect_volume"],40,"arial",["volume_b","volume_e"],"left",0.5)
+        for indx,buttons in enumerate(table2):
+            percentage = ic.settings[actions2[indx]]
+            self.Buttons.append(buttons)
+            y = ic.create_slider(buttons,(0,0,0),(255,105,0),actions2[indx],percentage)
+            buttons.add_text(str(int(round(percentage*100,0)))+"%",40,"arial")
+            self.Buttons.append(y[0])
+            self.Circle.append(y[1])
+            
+        
+        
         #(255,105,200)
 
+    def flip_switch_state(self, circle:Circle, repaint:bool or None = True):
+        ic.flip_switch_state(circle, self.Buttons,repaint)
+    
+    def update_slider(self, circle:Circle):
+        ic.update_slider(circle, self.Buttons)
+    
+    def slider_percentage(self, circle:Circle):
+        return ic.Slider_percentage(ic.find_button_by_text("slider_"+str(circle.action),self.Buttons),ic.find_button_by_action(str(circle.action),self.Buttons),circle.pos[0])
+
     def repaint(self):
-        konst.in_common.repaint([self.Images,self.Buttons,self.Texts,self.Circle])
+            ic.repaint([self.Images,self.Buttons,self.Texts,self.Circle])
 
     def check_collision(self):
-        return konst.in_common.check_collision(self.Buttons,self.old_pos)
+        return ic.check_collision(self.Buttons,self.old_pos)
     
     def update_mouse_pos(self):
         self.old_pos = pygame.mouse.get_pos()
         
     def check_collision_images(self):
-        return konst.in_common.check_collision(self.Images,self.old_pos)
+        return ic.check_collision(self.Images,self.old_pos)
 
     def check_collision_circle(self):
-        return konst.in_common.check_collision(self.Circle, self.old_pos)
+        return ic.check_collision(self.Circle, self.old_pos)
 
-    def flip_switch_state(self, circle:Circle):
-        button = konst.in_common.find_button_by_text("switch1",self.Buttons)
-        if circle.color == (0,255,0):
-            circle.delete()
-            circle.color = (255,0,0)  
-            circle.change_pos((circle.pos[0]-button.dimensions[0],circle.pos[1]))
-        else: 
-            circle.delete()
-            circle.color = (0,255,0)
-            circle.change_pos((circle.pos[0]+button.dimensions[0],circle.pos[1]))
-        circle.update_mask()
-        circle.draw()
+    
+        
         

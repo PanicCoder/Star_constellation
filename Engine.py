@@ -1,16 +1,21 @@
-from importlib.resources import path
+from matplotlib.font_manager import json_dump
 import pygame
-import json
 from Renderer import *
-from Konstants import in_common,icon
+from Konstants import in_common as ic,icon
+import json
 
 class Engine():
     
-    def __init__(self) -> None:         
-        #self.Width = 1750
-        #self.Height = 1000
+    def __init__(self) -> None:    
+        self.screen = pygame.display.get_surface()    
+        ic.load_settings()
+        ic.create_music()
+        if ic.settings["fullscreen"]:
+            self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
+            ic.update_window_scale()
+        if ic.settings["background_music"]:
+            pygame.mixer.music.play(-1)
         pygame.display.set_icon(pygame.image.load(icon))
-        self.screen = pygame.display.get_surface()
         self.old_dimensions = [pygame.display.get_window_size()]
 
         #Current status of the game: Play,Continue,Level,Settings,Quit
@@ -22,6 +27,7 @@ class Engine():
         self.level_name = self.Level_names[0]
         self.Running = True
         self.freeze = False
+        self.mouse_pressed = False
         self.return_flag = False
         self.fullscreen = False
         self.star_index = 0
@@ -30,17 +36,11 @@ class Engine():
         self.level = Level()
         self.settings = Settings()
         self.object_list = [self.r,self.l,self.level,self.settings]
-        konst.in_common.load_settings()
-        konst.in_common.create_music()
-        if konst.in_common.settings["window"][0]["fullscreen"]:
-            self.screen = pygame.display.set_mode(self.screen.get_size(),pygame.FULLSCREEN)
-            in_common.update_window_scale()
-        if konst.in_common.settings["sound"][0]["sound_effects"]:
-            pygame.mixer.music.play(-1)
+        
     
     def switch_sound(self):
-        if konst.in_common.settings["sound"][0]["sound_effects"]:
-            pygame.mixer.Sound.play(konst.in_common.sound_effects["switch_window"])
+        if ic.settings["sound_effects"]:
+            pygame.mixer.Sound.play(ic.sound_effects["switch_window"])
 
     def check_events(self,object):
         pygame.time.wait(10)
@@ -59,7 +59,7 @@ class Engine():
             elif event.type == pygame.VIDEORESIZE:
                 type_w = pygame.FULLSCREEN if self.fullscreen else pygame.RESIZABLE
                 self.screen = pygame.display.set_mode(event.size, type_w)
-                in_common.update_window_scale()
+                ic.update_window_scale()
                 if not object_type == Game_Render and not object_type == Game_Lobby:
                     object.__init__()
                 else:
@@ -148,6 +148,34 @@ class Engine():
             selected_button.update_color(color_update)
             selected_button.draw()
             pygame.time.wait(10)
+        
+        if type(object) == Settings:
+            collision_circle = object.check_collision_circle()
+            file = open(paths.settings_json)
+            content = json.load(file)
+            if collision_circle[1] and pygame.mouse.get_pressed()[0]: 
+                self.mouse_pressed = True
+                if type(content["settings"][0][collision_circle[1].get_action()]) == bool:
+                    self.settings.flip_switch_state(collision_circle[1],False)
+                    content["settings"][0][collision_circle[1].get_action()] = not content["settings"][0][collision_circle[1].get_action()]
+                    json_dump(content,paths.settings_json)
+                    file.close()
+                    return True
+                elif type(content["settings"][0][collision_circle[1].get_action()]) == float:
+                    self.settings.update_slider(collision_circle[1])
+                    
+                        
+            elif self.mouse_pressed:
+                if collision_circle[1]:
+                    content["settings"][0][collision_circle[1].get_action()] = round(ic.percentage,4)
+                    json_dump(content,paths.settings_json)
+                self.mouse_pressed = False
+                return True
+            file.close()
+
+                    
+                
+            
 
         if selected_button!=None:
             if not selected_button.check_collision(pygame.mouse.get_pos())[0]:
@@ -164,18 +192,6 @@ class Engine():
         if collision_images[0] and pygame.mouse.get_pressed()[0]:
             if collision_images[1].action == "QUIT":
                 self.Running = False
-                return True
-
-            if collision_images[1].action == "set_fullscreen":
-                file = open(paths.settings_json)
-                content = json.load(file)
-                content["window"][0]["fullscreen"] = not content["window"][0]["fullscreen"]
-                #json_dump(content,paths.settings_json)
-                file.close()
-                collision_images[1].change_image(pygame.image.load(paths.switch[int(content["window"][0]["fullscreen"])]))
-                collision_images[1].draw()
-                pygame.display.update()
-                self.return_flag = True
                 return True
 
         if collision[0] and pygame.mouse.get_pressed()[0] and not self.return_flag:
@@ -274,11 +290,8 @@ class Engine():
                 self.switch_sound()
                 return
             exit = self.check_events(self.settings)
-            if self.button_reaction(self.settings,color=(7,45,99),color_update=(34,59,112)):
-                pass
-            circle_collision = self.settings.check_collision_circle()
-            if circle_collision[0]:
-                if circle_collision[1].get_action() == "FULLSCREEN" and pygame.mouse.get_pressed()[0]:
-                    self.settings.flip_switch_state(circle_collision[1])
+            if self.button_reaction(self.settings,color=(7,45,99),color_update=(34,59,112)) and self.Running!=False:
+                self.__init__()
+                self.settings.repaint()
             pygame.time.wait(10)
             

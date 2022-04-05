@@ -40,7 +40,7 @@ class Star():
         self.circle.pos = position
     
     def check_collision(self, pos:tuple[int,int]):
-        return (self.circle.check_collision(pos),self)
+        return (self.circle.check_collision(pos)[0],self)
 
     def get_pos(self):
         return self.circle.pos

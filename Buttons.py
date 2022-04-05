@@ -4,7 +4,7 @@ import Konstants as konst
 
 class Buttons():
 
-    def __init__(self, pos_:tuple[int,int], dimensions_:tuple[int,int], color_, reactive_:bool, action_:int or None=None, filled_:int or None = 0, transparent_:bool or None = False) -> None:
+    def __init__(self, pos_:tuple[int,int], dimensions_:tuple[int,int], color_, reactive_:bool, action_:int or None=None, filled_:int or None = 0, transparent_:float or None = None) -> None:
 
         #X and Y Position on the surface
         self.pos = pos_    
@@ -22,9 +22,9 @@ class Buttons():
         self.mask = pygame.Rect(self.pos[0],self.pos[1],self.dimensions[0],self.dimensions[1]) 
 
     def draw(self):
-        if self.transparent:
+        if self.transparent != None:
             s = pygame.Surface(self.dimensions)
-            s.set_alpha(128)
+            s.set_alpha(int(256*self.transparent))
             s.fill(self.color)
             pygame.display.get_surface().blit(s,self.pos)
         else: 
