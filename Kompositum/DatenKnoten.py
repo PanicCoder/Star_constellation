@@ -28,7 +28,8 @@ class DatenKnoten(ListElement):
         return self
 
     def repaint(self):
-        self.Element.draw()
+        if self.Element.get_render():
+            self.Element.draw()
         self.next.repaint()
 
     def restor_color(self):

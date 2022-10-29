@@ -2,50 +2,90 @@
     "constellation": [
     {
         "constellation_name":"Bootes",
-        "constellation_id":4
+        "constellation_id":3
     }
     ],
     
     "Star_1": [
         {
-            "pos":[150,400],
+            "pos":[448,335],
             "radius":12,
-            "brightness":0.25,
+            "brightness":0.35,
             "active":1
         }
     ],
     "Star_2": [
         {
-            "pos":[200,250],
-            "radius":40,
+            "pos":[628,535],
+            "radius":35,
             "brightness":0,
             "active":1
         }
     ],
     "Star_3": [
         {
-            "pos":[280,100],
-            "radius":30,
-            "brightness":0.35,
+            "pos":[600,685],
+            "radius":25,
+            "brightness":0.15,
             "active":1
         }
     ],
     "Star_4": [
         {
-            "pos":[850,550],
+            "pos":[510,725],
             "radius":12,
+            "brightness":0.45,
+            "active":1
+        }
+    ],
+    "Star_5": [
+        {
+            "pos":[930,355],
+            "radius":25,
+            "brightness":0.0,
+            "active":1
+        }
+    ],
+    "Star_6": [
+        {
+            "pos":[1185,195],
+            "radius":15,
+            "brightness":0.3,
+            "active":1
+        }
+    ],
+    "Star_7": [
+        {
+            "pos":[1400,320],
+            "radius":15,
+            "brightness":0.27,
+            "active":1
+        }
+    ],
+    "Star_8": [
+        {
+            "pos":[1298,475],
+            "radius":15,
+            "brightness":0.3,
+            "active":1
+        }
+    ],
+    "Star_9": [
+        {
+            "pos":[1030,450],
+            "radius":13,
             "brightness":0.45,
             "active":1
         }
     ],
     "Instructions": [
         {
-            "Connections":[[1,2],[2,3],[2,4],[4,5],[4,7],[4,8],[5,6],[8,9]]
+            "Connections":[[1,2],[2,3],[2,5],[2,9],[3,4],[5,6],[6,7],[7,8],[8,9]]
         }
     ],
     "Explanation_text":[
         {
-            "Latin_name":"Aquila",
+            "Latin_name":"Bootes",
             "text":" "
         }
     ]

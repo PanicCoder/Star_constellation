@@ -30,7 +30,7 @@ class Game_Render(Lv):
 
     def create(self,path:str):
         self.load_json(path)
-        self.Line_in_use=Line(self.Star_in_use.get_pos(),pygame.mouse.get_pos(),"Line")
+        self.Line_in_use=Line(self.Star_in_use.get_pos(),pygame.mouse.get_pos(),5*self.mt,"Line")
         self.list.add_element_at_end(self.Line_in_use)
 
     def set_Star_to_use(self, key_star:str):
@@ -51,32 +51,37 @@ class Game_Render(Lv):
         self.Instructions = data["Instructions"][0]["Connections"]
         i = 20*self.mx
         for indx,ins in enumerate(self.Instructions):
-            self.list.add_element_at_end(Text(str(ins[0])+"-"+str(ins[1]),(10*self.mx+i,pygame.display.get_surface().get_height()-25*self.my-self.get_text_size(str(ins),int(30*self.mt),"arial")[1]),(199,20,80),pygame.font.SysFont("arial",int(30*self.mt)),"Ins:" + str(ins[0])+"-"+str(ins[1])))
+            self.list.add_element_at_end(Text(str(ins[0])+"-"+str(ins[1]),(10*self.mx+i,pygame.display.get_surface().get_height()-25*self.my-self.get_text_size(str(ins),int(30*self.mt),"arial")[1]),(199,20,80),pygame.font.SysFont("arial",int(30*self.mt)),f"Ins:{str(ins[0])}-{str(ins[1])}"))
             i += self.get_text_size(str(ins[0])+"-"+str(ins[1]),int(40*self.mt),"arial")[0]+25*self.mx
         t_size = self.get_text_size("Verbinde die Sterne:",int(30*self.mt),"arial")
-        self.list.add_element_at_end(Text("Verbinde die Sterne:",(20*self.mx,self.list.get_element_by_key("Ins:" + str(ins[0])+"-"+str(ins[1])).pos[1]-t_size[1]-40*self.my),(173,216,230),pygame.font.SysFont("arial",int(30*self.mt)),"Instruction_Headline"))
+        self.list.add_element_at_end(Text("Verbinde die Sterne:",(20*self.mx,self.list.get_element_by_key(f"Ins:{str(ins[0])}-{str(ins[1])}").pos[1]-t_size[1]-40*self.my),(173,216,230),pygame.font.SysFont("arial",int(30*self.mt)),key_="Instruction_Headline"))
         self.list.add_element_at_end(self.create_underline(self.list.get_element_by_key("Instruction_Headline"),t_size,(199,20,80),False))
         self.list.add_element(headline[0])
         
         for Stars in data:
             if(Stars[0:4]=="Star"):
                 values = data[Stars][0]
-                self.list.add_element_at_end(Star([values["pos"][0]*self.mx,values["pos"][1]*self.my],values["radius"]*self.mt,values["brightness"],values["active"],Stars[-1],Stars[5:],Stars))
+                self.list.add_element_at_end(Star([values["pos"][0]*self.mx,values["pos"][1]*self.my],values["radius"]*self.mt,values["brightness"],values["active"],Stars[5:],Stars[5:],Stars))
                 positions.append([values["pos"][0]*self.mx,values["pos"][1]*self.my])
         pos_points = self.get_pos_points(positions,values["radius"]*self.mt)
         self.mask = self.create_mask(pos_points,values["radius"]*self.mt)
         dimension = (self.screen.get_width()-pos_points[1]-2*values["radius"]*self.mt-30*self.mx,self.screen.get_height())
+        self.set_Star_to_use("Star_1")
+        self.list.add_element(self.set_background(self.get_file_path("Stars.png")))
+        #self.list.add_element(self.set_background(self.get_file_path(f"{self.name}.png")))
+        
+
+    def create_text(self, dimension):
+        
         t = self.format_text(text,dimension,int(30*self.mt),[self.screen.get_width()-dimension[0],0])
         factor = math.floor(self.get_factor(t))
-        self.list.add_element(self.set_background(self.get_file_path("Stars.png")))
-        
         for text in t:
             text.change_pos((text.pos[0],text.pos[1]+factor))
             self.list.add_element_after_element(text,"Background")
-        self.set_Star_to_use("Star_1")
+        
 
 
-    #returns a mask for the space the star_constellation needs
+    #nearest_x,nearest_y,furthest_x*2radius-nearest_x,furtest_y-nearest_y
     def get_pos_points(self,postion_list, radius:int) -> list:
         nearest_x = self.screen.get_height()
         nearest_y = self.screen.get_height()
@@ -93,9 +98,9 @@ class Game_Render(Lv):
                 furthest_y = pos[1]+radius
         return [nearest_x,furthest_x,nearest_y,furthest_y]
     
-    #nearest_x,nearest_y,furthest_x*2radius-nearest_x,furtest_y-nearest_y
+    
+    #returns a mask for the space the star_constellation needs
     def create_mask(self,pos,radius) -> pygame.Rect:
-        #self.list.add_element(Buttons((pos[0],pos[2]),(pos[1]+2*radius-pos[0],pos[3]-pos[2]),(0,0,0),False,"Constelation_Background"))
         return pygame.Rect(pos[0],pos[2],pos[1]+2*radius-pos[0],pos[3]-pos[2])
 
     #factor for text-centering
@@ -113,14 +118,13 @@ class Game_Render(Lv):
         return self.list.check_collision()
 
     def Lock_line(self, star_to_lock:Star):
-        
-        reverse = False
         ids = [int(self.Star_in_use.id),int(star_to_lock.id)]
         if self.Star_in_use.id == star_to_lock.id:
             return 
         for connections in self.connected_stars:
-            if connections == ids or connections == [int(star_to_lock.id),int(self.Star_in_use.id)]:
+            if connections == ids or connections == ids[::-1]:
                 return
+        reverse = False
         for ins in self.Instructions:
             if ins == ids:
                 self.update_instroctions(ids)
@@ -129,20 +133,36 @@ class Game_Render(Lv):
                 reverse = True
         if reverse:
             self.Line_in_use.final_line(star_to_lock,self.Star_in_use)
+            self.change_layer_of_line(ids[::-1])
             self.connected_stars.append(ids[::-1])
         else:
             self.Line_in_use.final_line(self.Star_in_use,star_to_lock)
             self.connected_stars.append(ids)
+            self.change_layer_of_line(ids)
         self.Star_in_use = star_to_lock
-        self.Line_in_use = Line(star_to_lock.get_pos(),pygame.mouse.get_pos(),"Line")
+        self.Line_in_use = Line(star_to_lock.get_pos(),pygame.mouse.get_pos(),5*self.mt,"Line")
         self.list.add_element_at_end(self.Line_in_use)
         
+    def unrender_instructions(self):
+        for ins in self.Instructions:
+            self.list.get_element_by_key(f"Ins:{str(ins[0])}-{str(ins[1])}").set_render()
+        self.list.get_element_by_key("Instruction_Headline").set_render()
+        self.list.get_element_by_key("UlVerbinde die Sterne:").set_render()
 
     def update_instroctions(self,ids):
-        text = self.list.get_element_by_key("Ins:"+str(ids[0])+"-"+str(ids[1]))
+        text = self.list.get_element_by_key(f"Ins:{str(ids[0])}-{str(ids[1])}")
+        if not text.get_render():
+            self.unrender_instructions()
         text.change_color((199,20,80) if text.font_color == (20,199,80) else (20,199,80))
 
-    def completed_star_constellation(self, object) -> bool:
+
+    def change_layer_of_line(self, ids:list[int,int]):
+        key = f"Line Star_{str(ids[0])}-Star_{str(ids[1])}"
+        l = self.list.get_element_by_key(key)
+        self.list.delete_element(key)
+        self.list.add_element_after_element(l,"Instruction_Headline")
+
+    def completed_star_constellation(self) -> bool:
         number_conections = len(self.Instructions)
         count = 0
         for inst in self.Instructions:
@@ -151,54 +171,84 @@ class Game_Render(Lv):
         #print(str(len(self.connected_stars))+" | "+str(number_conections))
         if number_conections == count and len(self.connected_stars) == number_conections:
             if not self.finished:
-                object.play_sound("complete")
-                self.finished = True
-            return True
+                self.Line_in_use.set_render()
+                self.list.get_element_by_key("Background").change_image(self.get_file_path(f"{self.name}.png"))
+                self.unrender_instructions()
+            return True  
         self.finished = False  
         return False
+
+    def resize(self) -> Callable:
+        self.__init__(self.name)
+        return self    
     
 class Game_Lobby(Lv):
 
     def __init__(self,name:str) -> None:
         super().__init__()
         self.id = 1
-        self.list = List()
+        #self.list = List()
+        self.buttons:list = []
+        self.texts:list = []
+        self.images:list = []
+        self.all_lists = [self.images, self.buttons, self.texts]
+        self.table_contants = ["Play","Continue","Level","Settings"]
+        self.intermediate:pygame.Surface = None
+        self.inter_height = 0
         self.level_name = name
+        self.scroll_y = 0
         self.create()
     
     def create(self):
-        Headlilne = self.create_Headline("Sternbilder",int(100*self.mt))
-        self.list.add_element_at_end(Headlilne[0])
-        self.list.add_element_at_end(Headlilne[1])
-        table = self.create_table(4,Headlilne[0].pos,(100,125),[(75,200),(50,0)],Headlilne[2],(121,92,174),(148, 110, 159),True,["Play","Continue","Level","Settings"],50,"arial",[0,1,2,3])
-        images = [self.create_shutdown_button(),self.set_background(self.get_file_path("galaxy.jpg"))]
+        Headlilne = self.create_Headline("Sternbilder",int(100*self.mt),moveable=True)
+        self.texts.append(Headlilne[0])
+        self.buttons.append(Headlilne[1])
+        table = self.create_table(len(self.table_contants),Headlilne[0].pos,(100,125),[(75,200),(50,0)],Headlilne[2],(121,92,174),(148, 110, 159),True, self.table_contants,50,"arial",[i for i in range(len(self.table_contants))], moveable=True)
+        images = [self.set_background(self.get_file_path("galaxy.jpg")),self.create_shutdown_button()]
         for elements_table in table:
-            self.list.add_element_at_end(elements_table)
+            self.buttons.append(elements_table)
+        last_button = self.element_by_key(self.buttons,f"{len(self.table_contants)}Tb{len(self.table_contants)-1}")
+        self.inter_height = last_button.get_pos()[1]+last_button.dimensions[1]+150*self.my
         for elements_images in images:
-            self.list.add_element(elements_images)
-        button = self.list.get_element_by_key("4Tb2")  
+            self.images.append(elements_images)
+        self.buttons += self.create_side_bar()
+        bindx = str(self.table_contants.index("Level"))
+        button = self.element_by_key(self.buttons,f"{len(self.table_contants)}Tb{bindx}") 
         text_s = pygame.font.SysFont("arial",int(30*self.mt)).size(self.level_name)
-        self.list.add_element_at_end(Text(self.level_name,(button.pos[0]+button.dimensions[0]/2-text_s[0]/2,button.pos[1]+button.dimensions[1]-(text_s[1]+5)),(0,0,0),pygame.font.SysFont("arial",int(30*self.mt)),"Level_text")) 
+        self.texts.append(Text(self.level_name,(button.pos[0]+button.dimensions[0]/2-text_s[0]/2,button.pos[1]+button.dimensions[1]-(text_s[1]+5)),(0,0,0),pygame.font.SysFont("arial",int(30*self.mt)),"Level_text",moveable_=True))
+        self.intermediate = pygame.Surface((self.element_by_key(self.images,"Background").image.get_width(), self.screen.get_height()+self.inter_height),pygame.SRCALPHA)
 
     def change_level_name(self, new_level_name:str):
-        button = self.list.get_element_by_key("4Tb2")
-        text = self.list.get_element_by_key("Level_text")
+        bindx = str(self.table_contants.index("Level"))
+        button = self.element_by_key(self.buttons, f"{len(self.table_contants)}Tb{bindx}")
+        text = self.element_by_key(self.texts, "Level_text")
         text_s = pygame.font.SysFont("arial",int(30*self.mt)).size(new_level_name)
         text.change_text(new_level_name)   
         text.change_pos((button.pos[0]+button.dimensions[0]/2-text_s[0]/2,button.pos[1]+button.dimensions[1]-(text_s[1]+5)))      
         self.level_name = new_level_name
         
     def repaint(self):
-        self.list.repaint()
+        super().repaint(self.all_lists, self.intermediate, self.scroll_y)
+        self.screen.blit(self.intermediate, (0,self.scroll_y))
+    
+    def restore_original_color(self):
+        super().restore_color(self.all_lists)
 
     def check_collision(self) -> tuple[bool,Callable]:
-        return self.list.check_collision()
+        return super().check_collision(self.all_lists)
 
     def update_mouse_pos(self):
         self.old_pos = pygame.mouse.get_pos()
 
+    def update_sidebar_slider(self):
+        super().update_sidebar_slider(self.element_by_key(self.buttons,"Sb2"), self.scroll_y, self.inter_height)
+    
     def get_level_text(self) -> Callable:
-        return self.list.get_element_by_key("Level_text")
+        return self.element_by_key(self.texts,"Level_text")
+    
+    def resize(self) -> Callable:
+        self.__init__(self.level_name)
+        return self
 
 
 class Level(Lv):
@@ -206,28 +256,50 @@ class Level(Lv):
     def __init__(self) -> None:
         super().__init__()
         self.id = 2
-        self.list = List()  
+        #self.list = List() 
+        self.buttons:list = []
+        self.images = []
+        self.texts = [] 
+        self.all_lists = [self.images, self.buttons, self.texts]
+        self.intermediate:pygame.Surface = None
+        self.inter_height = 0
+        self.scroll_y = 0
         self.create()
 
     def create(self):
-        Headlilne = self.create_Headline("Level",int(100*self.mt))
-        self.list.add_element(Headlilne[0])
-        self.list.add_element_at_end(Headlilne[1])
-        self.list.add_element(self.set_background(self.get_file_path("Level.png")))
-        self.list.add_element_after_element(self.create_shutdown_button(), "Background")
+        Headlilne = self.create_Headline("Level",int(100*self.mt), moveable=True)
+        self.texts.append(Headlilne[0])
+        self.buttons.append(Headlilne[1])
+        self.images.append(self.set_background(self.get_file_path("Level.png")))
+        self.images.append(self.create_shutdown_button())
         texts = []
         for file in next(os.walk(self.get_folder_path("Starfiles")))[2]:
             texts.append(file.split(".")[0])
             texts.sort()
-        table = self.create_table(len(texts),Headlilne[0].pos,(500,125),[(75,150),(250,0)],Headlilne[2],(7,45,99),(34,59,112),True,texts,50,"arial",[i for i in range(len(texts))])
+        table = self.create_table(len(texts),Headlilne[0].pos,(500,125),[(75,150),(250,0)],Headlilne[2],(7,45,99),(34,59,112),True,texts,50,"arial",[i for i in range(len(texts))],moveable=True)
         for elements in table:
-            self.list.add_element_at_end(elements)
+            self.buttons.append(elements)
+        last_button = self.element_by_key(self.buttons,f"{len(texts)}Tb{len(texts)-1}")
+        self.buttons += self.create_side_bar()
+        self.inter_height = last_button.get_pos()[1]+last_button.dimensions[1]+150*self.my
+        self.intermediate = pygame.Surface((self.element_by_key(self.images,"Background").image.get_width(), self.screen.get_height()+self.inter_height),pygame.SRCALPHA)
         
     def repaint(self):
-        self.list.repaint()
+        super().repaint(self.all_lists, self.intermediate, self.scroll_y)
+        self.screen.blit(self.intermediate, (0, self.scroll_y))
+    
+    def restore_original_color(self):
+        super().restore_color(self.all_lists)
 
     def check_collision(self) -> tuple[bool,Callable]:
-        return self.list.check_collision()
+        return super().check_collision(self.all_lists)
+    
+    def update_sidebar_slider(self):
+        super().update_sidebar_slider(self.element_by_key(self.buttons,"Sb2"), self.scroll_y, self.inter_height)
+    
+    def resize(self) -> Callable:
+        self.__init__()
+        return self
     
 
 class Settings(Lv):
@@ -281,6 +353,10 @@ class Settings(Lv):
 
     def check_collision(self) -> tuple[bool,Callable]:
         return self.list.check_collision()
+    
+    def resize(self) -> Callable:
+        self.__init__(self.settings)
+        return self
     
 
     

@@ -2,45 +2,53 @@
     "constellation": [
     {
         "constellation_name":"Cassiopeia",
-        "constellation_id":5
+        "constellation_id":4
     }
     ],
     
     "Star_1": [
         {
-            "pos":[150,400],
-            "radius":12,
+            "pos":[465,500],
+            "radius":20,
             "brightness":0.25,
             "active":1
         }
     ],
     "Star_2": [
         {
-            "pos":[200,250],
-            "radius":40,
-            "brightness":0,
+            "pos":[650,605],
+            "radius":30,
+            "brightness":0.05,
             "active":1
         }
     ],
     "Star_3": [
         {
-            "pos":[280,100],
-            "radius":30,
-            "brightness":0.35,
+            "pos":[805,540],
+            "radius":35,
+            "brightness":0,
             "active":1
         }
     ],
     "Star_4": [
         {
-            "pos":[850,550],
-            "radius":12,
-            "brightness":0.45,
+            "pos":[970,665],
+            "radius":25,
+            "brightness":0.1,
+            "active":1
+        }
+    ],
+    "Star_5": [
+        {
+            "pos":[1090,480],
+            "radius":30,
+            "brightness":0.0,
             "active":1
         }
     ],
     "Instructions": [
         {
-            "Connections":[[1,2],[2,3],[2,4],[4,5],[4,7],[4,8],[5,6],[8,9]]
+            "Connections":[[1,2],[2,3],[3,4],[4,5]]
         }
     ],
     "Explanation_text":[

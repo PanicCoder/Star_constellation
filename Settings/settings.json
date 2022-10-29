@@ -3,9 +3,9 @@
     {
       "fullscreen": false,
       "background_music": false,
-      "sound_effects": true,
-      "volume_b": 0.4787,
-      "volume_e": 0.9709
+      "sound_effects": false,
+      "volume_b": 0.661,
+      "volume_e": 0.6337
     }
   ]
 }

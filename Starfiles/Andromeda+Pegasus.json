@@ -1,0 +1,173 @@
+{
+    "constellation": [
+    {
+        "constellation_name":"Andromeda+Pegasus",
+        "constellation_id":2
+    }
+    ],
+    
+    "Star_1": [
+        {
+            "pos":[230,430],
+            "radius":20,
+            "brightness":0.1,
+            "active":1
+        }
+    ],
+    "Star_2": [
+        {
+            "pos":[485,515],
+            "radius":30,
+            "brightness":0,
+            "active":1
+        }
+    ],
+    "Star_3": [
+        {
+            "pos":[512,435],
+            "radius":10,
+            "brightness":0.55,
+            "active":1
+        }
+    ],
+    "Star_4": [
+        {
+            "pos":[520,385],
+            "radius":10,
+            "brightness":0.45,
+            "active":1
+        }
+    ],
+    "Star_5": [
+        {
+            "pos":[645,555],
+            "radius":13,
+            "brightness":0.45,
+            "active":1
+        }
+    ],
+    "Star_6": [
+        {
+            "pos":[783,527],
+            "radius":15,
+            "brightness":0.25,
+            "active":1
+        }
+    ],
+    "Star_7": [
+        {
+            "pos":[895,795],
+            "radius":15,
+            "brightness":0.25,
+            "active":1
+        }
+    ],
+    "Star_8": [
+        {
+            "pos":[1190,620],
+            "radius":15,
+            "brightness":0.25,
+            "active":1
+        }
+    ],
+    "Star_9": [
+        {
+            "pos":[1045,395],
+            "radius":15,
+            "brightness":0.25,
+            "active":1
+        }
+    ],
+    "Star_10": [
+        {
+            
+            "pos":[1307,618],
+            "radius":10,
+            "brightness":0.55,
+            "active":1
+        }
+    ],
+    "Star_11": [
+        {
+            "pos":[1345,625],
+            "radius":9,
+            "brightness":0.45,
+            "active":1
+        }
+    ],
+    "Star_12": [
+        {
+            "pos":[1543,605],
+            "radius":8,
+            "brightness":0.35,
+            "active":1
+        }
+    ],
+    "Star_13": [
+        {
+            "pos":[1605,445],
+            "radius":10,
+            "brightness":0.25,
+            "active":1
+        }
+    ],
+    "Star_14": [
+        {
+            "pos":[1140,415],
+            "radius":9,
+            "brightness":0.45,
+            "active":1
+        }
+    ],
+    "Star_15": [
+        {
+            "pos":[1165,420],
+            "radius":8,
+            "brightness":0.35,
+            "active":1
+        }
+    ],
+    "Star_16": [
+        {
+            "pos":[1290,270],
+            "radius":7,
+            "brightness":0.3,
+            "active":1
+        }
+    ],
+    "Star_17": [
+        {
+            "pos":[1360,195],
+            "radius":10,
+            "brightness":0.25,
+            "active":1
+        }
+    ],
+    "Star_18": [
+        {
+            "pos":[1090,300],
+            "radius":10,
+            "brightness":0.25,
+            "active":1
+        }
+    ],
+    "Star_19": [
+        {
+            "pos":[1165,165],
+            "radius":10,
+            "brightness":0.25,
+            "active":1
+        }
+    ],
+    "Instructions": [
+        {
+            "Connections":[[1,2],[2,3],[2,5],[3,4],[5,6],[6,7],[6,9],[7,8],[8,9],[8,10],[9,14],[9,18],[10,11],[11,12],[12,13],[14,15],[15,16],[16,17],[18,19]]
+        }
+    ],
+    "Explanation_text":[
+        {
+            "Latin_name":"Andromeda",
+            "text":"Es lebte einmal eine Koenigin in Aethiopien, die hiess Cassiopeia. Sie hatte eine wunderschoene Tochter namens Andromeda. Cassiopeia war sehr stolz auf sie und prahlte damit, dass ihre Tochter huebscher sei als die Nereiden, die 50 Toechter des Meergreises Nereus. Die Nereiden waren beleidigt und beschwerten sich daraufhin bei Poseidon, ihrem Freund und Beschuetzer."
+        }
+    ]
+}

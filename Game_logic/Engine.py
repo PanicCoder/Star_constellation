@@ -26,6 +26,13 @@ class Engine(lv):
             self.Level_names.append(file.split(".")[0])
         self.Level_names.sort()
         self.level_name = self.Level_names[0]
+        self.scroll_y = 0
+        self.surface = pygame.surface.Surface((self.screen.get_width(),self.screen.get_height()))
+        rect = self.screen.get_rect()
+        self.x1 = rect[0]
+        self.x2 = self.x1 + rect[2]
+        self.y1 = rect[1]
+        self.y2 = self.y1 + rect[3]
         self.Running = True
         self.freeze = False
         self.return_flag = False
@@ -51,14 +58,13 @@ class Engine(lv):
         object_type = type(object)
         if self.old_dimensions != pygame.display.get_window_size():
             for o in self.object_list:
-                if o.id == 2:
-                    o.__init__()
-                elif o.id == 3:
-                    o.__init__(self.settings)
-                else:
-                    o.__init__(self.level_name)
+                o.resize()
             self.old_dimensions = pygame.display.get_window_size()
         for event in pygame.event.get():
+            if object_type == Level:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if event.button == 4:   self.scroll_y = min(self.scroll_y + 15, 0)
+                        elif event.button == 5: self.scroll_y = max(self.scroll_y - 15, -self.screen.get_height())
             if event.type == pygame.QUIT:
                 self.Running = False
                 return
@@ -66,14 +72,11 @@ class Engine(lv):
                 type_w = pygame.FULLSCREEN if self.fullscreen else pygame.RESIZABLE
                 self.screen = pygame.display.set_mode(event.size, type_w)
                 self.update_window_scale()
-                if not object_type == Game_Render and not object_type == Game_Lobby:
-                    object.__init__()
-                elif object_type == Settings:
-                    object.__init__(self.settings)
-                else:
-                    object.__init__(self.level_name)
+                for o in self.object_list:
+                    o.resize()
                 object.repaint()
                 pygame.display.update()
+
 
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_F11:
@@ -84,14 +87,14 @@ class Engine(lv):
                     self.fullscreen = not self.fullscreen
 
                 if event.key == pygame.K_ESCAPE:
+                    self.freeze = False
                     if object_type == Game_Lobby:
                         return
                     for i in range(len(self.Status)):
-                        self.Status[i] = False
-                    self.freeze = False
+                        self.Status[i] = False 
                     return True
 
-                if object_type == Game_Render:    
+                elif object_type == Game_Render:    
                     if event.key == pygame.K_RETURN:
                         self.freeze = not self.freeze
                     
@@ -105,6 +108,9 @@ class Engine(lv):
                             self.r.set_Star_to_use(f"Star_{id[0]}")
                         else:
                             self.r.set_Star_to_use("Star_1") 
+                        if not self.r.Line_in_use.get_render():
+                            self.r.Line_in_use.set_render()
+                            self.r.list.get_element_by_key("Background").change_image(self.get_file_path("Stars.png"))
                         self.r.update_line_in_use()
                         self.freeze = False
                             
@@ -134,6 +140,12 @@ class Engine(lv):
                                 
                             self.r.set_Star_to_use(self.r.list.get_element_by_key(f"Star_{indx}").get_key())
                         self.r.update_line_in_use()
+            if object_type == Game_Lobby or object_type == Level:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    #go up
+                    if event.button == 4: object.scroll_y = min(object.scroll_y + object.inter_height/80, 0)
+                    #go down
+                    if event.button == 5: object.scroll_y = max(object.scroll_y - object.inter_height/80, -(object.inter_height-self.screen.get_height()))
         return False
 
     def r_flag(self) -> bool:
@@ -158,12 +170,11 @@ class Engine(lv):
                 self.Game()
                 
             elif self.Status[2]:
-                #TODO add scrolling
                 self.Level()
                 self.Status[2] = False
+                self.freeze = False
                 
             elif self.Status[3]:
-                #TODO
                 self.Settings()
                 self.Status[3] = False
                 
@@ -182,6 +193,8 @@ class Engine(lv):
                     if collision[1].get_key() == "Shutdown_Button":
                         self.Running = False
                         return
+                    elif collision[1].get_key() == "Sb2":  
+                        self.l.scroll_y = -abs((pygame.mouse.get_pos()[1] / self.screen.get_height())*(self.l.inter_height-self.screen.get_height()))
                     else:
                         self.Status[collision[1].get_action()] = not self.Status[collision[1].get_action()]
                         self.return_flag = True
@@ -189,7 +202,8 @@ class Engine(lv):
                 else:
                     collision[1].update_color_reactive(True)
             else:
-                self.l.list.restore_original_color()
+                self.l.restore_original_color()
+            self.l.update_sidebar_slider()
             self.clock.tick(60)
             self.l.repaint()
             pygame.display.update()
@@ -210,8 +224,10 @@ class Engine(lv):
                     pygame.mixer.Sound.play(self.sound_effects["click"])
                 else:
                     self.r.update_line_in_use()
-            if self.r.completed_star_constellation(self):
-                self.r.list.delete_element("Line")
+            if self.r.completed_star_constellation():
+                if not self.r.finished:
+                    self.play_sound("complete")
+                    self.r.finished = True
                 self.freeze = True
             self.r.repaint()
             pygame.display.update()
@@ -225,15 +241,21 @@ class Engine(lv):
             collision = self.level.check_collision()
             if collision[0]:
                 if pygame.mouse.get_pressed()[0]:
-                    self.level_name = self.Level_names[collision[1].get_action()]
-                    self.l.change_level_name(self.level_name)
-                    self.return_flag = True
-                    return
+                    if collision[1].get_key() == "Sb2":  
+                        self.level.scroll_y = -abs((pygame.mouse.get_pos()[1] / self.screen.get_height())*(self.level.inter_height-self.screen.get_height()))
+                    elif collision[1].get_key() == "Shutdown_Button":
+                        self.Running = False
+                        return
+                    else:
+                        self.level_name = self.Level_names[collision[1].get_action()]
+                        self.l.change_level_name(self.level_name)
+                        self.return_flag = True
+                        return
                 else:
                     collision[1].update_color_reactive(True)
             else:
-                self.level.list.restore_original_color()
-            
+                self.level.restore_original_color()
+            self.level.update_sidebar_slider()
             self.clock.tick(60)
             self.level.repaint()
             pygame.display.update()

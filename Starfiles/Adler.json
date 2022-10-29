@@ -8,7 +8,7 @@
     
     "Star_1": [
         {
-            "pos":[310,400],
+            "pos":[790,245],
             "radius":12,
             "brightness":0.25,
             "active":1
@@ -16,23 +16,23 @@
     ],
     "Star_2": [
         {
-            "pos":[350,270],
-            "radius":40,
+            "pos":[900,240],
+            "radius":30,
             "brightness":0,
             "active":1
         }
     ],
     "Star_3": [
         {
-            "pos":[420,140],
-            "radius":30,
+            "pos":[980,240],
+            "radius":20,
             "brightness":0.35,
             "active":1
         }
     ],
     "Star_4": [
         {
-            "pos":[750,550],
+            "pos":[830,605],
             "radius":20,
             "brightness":0.38,
             "active":1
@@ -40,7 +40,7 @@
     ],
     "Star_5": [
         {
-            "pos":[370,660],
+            "pos":[620,400],
             "radius":14,
             "brightness":0.6,
             "active":1
@@ -48,7 +48,7 @@
     ],
     "Star_6": [
         {
-            "pos":[170,725],
+            "pos":[460,260],
             "radius":19,
             "brightness":0.29,
             "active":1
@@ -56,7 +56,7 @@
     ],
     "Star_7": [
         {
-            "pos":[1000,900],
+            "pos":[650,970],
             "radius":16,
             "brightness":0.3,
             "active":1
@@ -64,7 +64,7 @@
     ],
     "Star_8": [
         {
-            "pos":[1000,150],
+            "pos":[1310,550],
             "radius":23,
             "brightness":0.2,
             "active":1
@@ -73,7 +73,7 @@
     ],
     "Star_9": [
         {
-            "pos":[1100,120],
+            "pos":[1380,578],
             "radius":19,
             "brightness":0.4,
             "active":1

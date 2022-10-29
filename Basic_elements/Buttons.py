@@ -6,7 +6,7 @@ from Super_Classes.Screen import Screen
 
 class Buttons(Screen, BasicElement):
 
-    def __init__(self, pos_:tuple[int,int], dimensions_:tuple[int,int], color_, reactive_:bool, key_:str or None = "", reactive_color:tuple[int,int,int] or None = None,action_:int or None=None, filled_:int or None = 0, transparent_:float or None = None) -> None:
+    def __init__(self, pos_:tuple[int,int], dimensions_:tuple[int,int], color_, reactive_:bool, key_:str or None = "", reactive_color:tuple[int,int,int] or None = None,action_:int or None=None, filled_:int or None = 0, transparent_:float or None = None, moveable_:bool or None = False) -> None:
 
         super().__init__()
         self.key = key_
@@ -15,9 +15,11 @@ class Buttons(Screen, BasicElement):
         self.color = color_
         #If the user can interact with the button or not
         self.reactive = reactive_
+        self.moveable = moveable_
         self.text = []
         self.filled = filled_
         self.transparent = transparent_
+        self.render = True
 
         #gives back the action to perform
         self.action = action_
@@ -37,6 +39,24 @@ class Buttons(Screen, BasicElement):
             for t in self.text:
                 t.draw()
 
+    def mvdraw(self, inter:pygame.Surface) -> None:
+        
+        if self.transparent != None:
+            s = pygame.Surface(self.dimensions)
+            s.set_alpha(int(256*self.transparent))
+            s.fill(self.color)
+            inter.blit(s,self.pos)
+            
+        else: 
+            pygame.draw.rect(inter,self.color,self.mask,self.filled)
+            
+        if self.text != None:
+            for t in self.text:
+                t.mvdraw(inter)
+    
+    def update_mask(self, pos_):
+        self.mask = pygame.Rect(pos_[0],pos_[1],self.dimensions[0],self.dimensions[1])
+
     def update_color(self, color_:tuple[int,int,int]) -> None:
         self.color = color_
 
@@ -48,6 +68,8 @@ class Buttons(Screen, BasicElement):
             
     def change_pos(self, position:tuple[int,int]) -> None:
         self.pos = position
+        self.update_mask(position)
+        
     
     def check_collision(self) -> tuple[bool,Callable]:
         if self.reactive:
@@ -71,6 +93,12 @@ class Buttons(Screen, BasicElement):
     def get_action(self) -> int:
         return self.action
     
+    def set_render(self):
+        self.render = not self.render
+
+    def get_render(self) -> bool:
+        return self.render
+
     def get_key(self) -> str:
         return self.key
 
