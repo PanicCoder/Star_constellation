@@ -1,3 +1,4 @@
+from dis import Instruction
 from typing import Callable
 import pygame
 import json
@@ -26,6 +27,7 @@ class Game_Render(Lv):
         self.name = name_
         self.finished = False
         self.mask = None
+        self.star_count = 0
         self.create(self.get_file_path(str(self.name)+'.json'))
 
     def create(self,path:str):
@@ -45,42 +47,44 @@ class Game_Render(Lv):
         file.close()
         positions = []
         text = str(data["Explanation_text"][0]["text"])
-        latin_name = "\lat.: "+data["Explanation_text"][0]["Latin_name"]
-        content = "Sternbild: "+data["constellation"][0]["constellation_name"]
-        headline = self.create_Headline(content+latin_name,int(50*self.mt),'inkfree')
+        l_name = data["Explanation_text"][0]["Latin_name"]
+        latin_name = f" (lat.: {l_name})"
+        content = data["constellation"][0]["constellation_name"]
+        headline = self.create_Headline(content,int(70*self.mt))
         self.Instructions = data["Instructions"][0]["Connections"]
-        i = 20*self.mx
-        for indx,ins in enumerate(self.Instructions):
-            self.list.add_element_at_end(Text(str(ins[0])+"-"+str(ins[1]),(10*self.mx+i,pygame.display.get_surface().get_height()-25*self.my-self.get_text_size(str(ins),int(30*self.mt),"arial")[1]),(199,20,80),pygame.font.SysFont("arial",int(30*self.mt)),f"Ins:{str(ins[0])}-{str(ins[1])}"))
-            i += self.get_text_size(str(ins[0])+"-"+str(ins[1]),int(40*self.mt),"arial")[0]+25*self.mx
-        t_size = self.get_text_size("Verbinde die Sterne:",int(30*self.mt),"arial")
-        self.list.add_element_at_end(Text("Verbinde die Sterne:",(20*self.mx,self.list.get_element_by_key(f"Ins:{str(ins[0])}-{str(ins[1])}").pos[1]-t_size[1]-40*self.my),(173,216,230),pygame.font.SysFont("arial",int(30*self.mt)),key_="Instruction_Headline"))
-        self.list.add_element_at_end(self.create_underline(self.list.get_element_by_key("Instruction_Headline"),t_size,(199,20,80),False))
+        text_logo = Image((50*self.mx,self.screen.get_height()-150*self.my),self.get_file_path("text_logo.png"),(125*self.mx,125*self.my),True,"Text_logo","TEXT")
+        self.list.add_element_after_element(text_logo, "Background")
+        #i = 20*self.mx
+        #for indx,ins in enumerate(self.Instructions):
+        #    self.list.add_element_at_end(Text(str(ins[0])+"-"+str(ins[1]),(10*self.mx+i,pygame.display.get_surface().get_height()-25*self.my-self.get_text_size(str(ins),int(30*self.mt),"arial")[1]),(199,20,80),pygame.font.SysFont("arial",int(30*self.mt)),f"Ins:{str(ins[0])}-{str(ins[1])}"))
+        #    i += self.get_text_size(str(ins[0])+"-"+str(ins[1]),int(40*self.mt),"arial")[0]+25*self.mx
+        #t_size = self.get_text_size("Verbinde die Sterne:",int(30*self.mt),"arial")
+        #self.list.add_element_at_end(Text("Verbinde die Sterne:",(20*self.mx,self.list.get_element_by_key(f"Ins:{str(ins[0])}-{str(ins[1])}").pos[1]-t_size[1]-40*self.my),(173,216,230),pygame.font.SysFont("arial",int(30*self.mt)),key_="Instruction_Headline"))
+        #self.list.add_element_at_end(self.create_underline(self.list.get_element_by_key("Instruction_Headline"),t_size,(199,20,80),False))
         self.list.add_element(headline[0])
+        self.list.add_element(headline[1])
         
         for Stars in data:
             if(Stars[0:4]=="Star"):
                 values = data[Stars][0]
                 self.list.add_element_at_end(Star([values["pos"][0]*self.mx,values["pos"][1]*self.my],values["radius"]*self.mt,values["brightness"],values["active"],Stars[5:],Stars[5:],Stars))
                 positions.append([values["pos"][0]*self.mx,values["pos"][1]*self.my])
+                self.star_count += 1
         pos_points = self.get_pos_points(positions,values["radius"]*self.mt)
         self.mask = self.create_mask(pos_points,values["radius"]*self.mt)
         dimension = (self.screen.get_width()-pos_points[1]-2*values["radius"]*self.mt-30*self.mx,self.screen.get_height())
         self.set_Star_to_use("Star_1")
-        self.list.add_element(self.set_background(self.get_file_path("Stars.png")))
+        self.list.add_element(self.set_background(self.get_file_path("stars.png")))
         #self.list.add_element(self.set_background(self.get_file_path(f"{self.name}.png")))
         
 
     def create_text(self, dimension):
-        
         t = self.format_text(text,dimension,int(30*self.mt),[self.screen.get_width()-dimension[0],0])
         factor = math.floor(self.get_factor(t))
         for text in t:
             text.change_pos((text.pos[0],text.pos[1]+factor))
             self.list.add_element_after_element(text,"Background")
         
-
-
     #nearest_x,nearest_y,furthest_x*2radius-nearest_x,furtest_y-nearest_y
     def get_pos_points(self,postion_list, radius:int) -> list:
         nearest_x = self.screen.get_height()
@@ -110,7 +114,32 @@ class Game_Render(Lv):
         y = self.screen.get_height()-50*self.my-start_y
         start_point = start_y+((y/2)-(length/2))
         return start_point -start_y
-
+    
+    def highlight_stars_to_connect(self):
+        star_index = int(self.Star_in_use.id)
+        stars_to_highlight:list = []
+        for ins in self.Instructions:
+            if ins[0] == star_index:
+                stars_to_highlight.append(self.list.get_element_by_key(f"Star_{ins[1]}"))
+            elif ins[1] == star_index:
+                stars_to_highlight.append(self.list.get_element_by_key(f"Star_{ins[0]}"))
+        self.highlight_stars(stars_to_highlight)
+    
+    def highlight_stars(self, h_list:list):
+        for indx in range(self.star_count):
+            element = self.list.get_element_by_key(f"Star_{indx+1}")
+            con = [int(element.id), int(self.Star_in_use.id)]
+            if element in h_list:
+                if con in self.connected_stars or con[::-1] in self.connected_stars:
+                    element.text.change_color((12,255,23))
+                else:
+                    element.text.change_color((255, 255, 0))
+            else:
+                if con in self.connected_stars or con[::-1] in self.connected_stars:
+                    element.text.change_color((255,0,0))
+                else:
+                    element.text.change_color((173,216,230))
+        
     def repaint(self):
         self.list.repaint()
 
@@ -127,9 +156,10 @@ class Game_Render(Lv):
         reverse = False
         for ins in self.Instructions:
             if ins == ids:
-                self.update_instroctions(ids)
+                #self.update_instroctions(ids)
+                pass
             elif ins == ids[::-1]:
-                self.update_instroctions(ids[::-1])
+                #self.update_instroctions(ids[::-1])
                 reverse = True
         if reverse:
             self.Line_in_use.final_line(star_to_lock,self.Star_in_use)
@@ -155,7 +185,6 @@ class Game_Render(Lv):
             self.unrender_instructions()
         text.change_color((199,20,80) if text.font_color == (20,199,80) else (20,199,80))
 
-
     def change_layer_of_line(self, ids:list[int,int]):
         key = f"Line Star_{str(ids[0])}-Star_{str(ids[1])}"
         l = self.list.get_element_by_key(key)
@@ -173,7 +202,9 @@ class Game_Render(Lv):
             if not self.finished:
                 self.Line_in_use.set_render()
                 self.list.get_element_by_key("Background").change_image(self.get_file_path(f"{self.name}.png"))
-                self.unrender_instructions()
+                #self.unrender_instructions()
+                for indx in range(self.star_count):
+                    self.list.get_element_by_key(f"Star_{indx+1}").text.change_color((173,216,230))
             return True  
         self.finished = False  
         return False
@@ -181,7 +212,44 @@ class Game_Render(Lv):
     def resize(self) -> Callable:
         self.__init__(self.name)
         return self    
+
+class Explanation_text(Lv):
+
+    def __init__(self, name_:str) -> None:
+        super().__init__()
+        self.id = 4
+        self.buttons:list = []
+        self.texts:list = []
+        self.images:list = []
+        self.all_lists = [self.images, self.buttons, self.texts]
+        self.intermediate:pygame.Surface = None
+        self.inter_height = 0
+        self.name = name_
+        self.scroll_y = 0
     
+    def create(self):
+        self.screen.fill((0,0,0))
+        
+    def repaint(self):
+        super().repaint(self.all_lists, self.intermediate, self.scroll_y)
+        self.screen.blit(self.intermediate, (0,self.scroll_y))
+    
+    def restore_original_color(self):
+        super().restore_color(self.all_lists)
+
+    def check_collision(self) -> tuple[bool,Callable]:
+        return super().check_collision(self.all_lists)
+
+    def update_mouse_pos(self):
+        self.old_pos = pygame.mouse.get_pos()
+
+    def update_sidebar_slider(self):
+        super().update_sidebar_slider(self.element_by_key(self.buttons,"Sb2"), self.scroll_y, self.inter_height)
+    
+    def resize(self) -> Callable:
+        self.__init__(self.name)
+        return self 
+
 class Game_Lobby(Lv):
 
     def __init__(self,name:str) -> None:

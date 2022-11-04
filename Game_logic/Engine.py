@@ -19,8 +19,8 @@ class Engine(lv):
         pygame.display.set_icon(pygame.image.load(self.get_file_path("Icon.png")))
         self.old_dimensions = [pygame.display.get_window_size()]
 
-        #Current status of the game: Play,Continue,Level,Settings,Quit
-        self.Status = [False,False,False,False,False]
+        #Current status of the game: Play,Continue,Level,Settings, Text
+        self.Status = [False,False,False,False, False]
         self.Level_names = []
         for file in next(os.walk(self.get_folder_path("Starfiles")))[2]:
             self.Level_names.append(file.split(".")[0])
@@ -40,9 +40,10 @@ class Engine(lv):
 
         self.r = Game_Render(self.level_name)
         self.l = Game_Lobby(self.level_name)
+        self.t = Explanation_text(self.level_name)
         self.level = Level()
         self.s = Settings(self.settings)
-        self.object_list = [self.r,self.l,self.level,self.s]
+        self.object_list = [self.r,self.l,self.level,self.s, self.t]
         self.clock = pygame.time.Clock()
         
     
@@ -177,7 +178,10 @@ class Engine(lv):
             elif self.Status[3]:
                 self.Settings()
                 self.Status[3] = False
-                
+
+            elif self.Status[4]:
+                self.Explanation_text()
+                self.Status[4] = False
             else:
                 self.Lobby()
         pygame.quit()
@@ -204,8 +208,8 @@ class Engine(lv):
             else:
                 self.l.restore_original_color()
             self.l.update_sidebar_slider()
-            self.clock.tick(60)
             self.l.repaint()
+            self.clock.tick(60)
             pygame.display.update()
 
     def Game(self):    
@@ -219,9 +223,13 @@ class Engine(lv):
             if not self.freeze:
                 collision = self.r.check_collision()
                 if collision[0] and pygame.mouse.get_pressed()[0]:
+                    if collision[1].get_key() == "Text_logo":
+                        self.Status[4] = True
+                        return
                     self.r.Lock_line(self.r.list.get_element_by_key(collision[1].get_key()))
-                    pygame.mixer.Sound.set_volume(self.sound_effects["click"],0.1)
-                    pygame.mixer.Sound.play(self.sound_effects["click"])
+                    if self.settings["sound_effects"]:
+                        pygame.mixer.Sound.set_volume(self.sound_effects["click"],0.1)
+                        pygame.mixer.Sound.play(self.sound_effects["click"])
                 else:
                     self.r.update_line_in_use()
             if self.r.completed_star_constellation():
@@ -229,10 +237,21 @@ class Engine(lv):
                     self.play_sound("complete")
                     self.r.finished = True
                 self.freeze = True
+            else:
+                self.r.highlight_stars_to_connect()
             self.r.repaint()
             pygame.display.update()
             self.clock.tick(60)
-
+    
+    def Explanation_text(self):
+        while self.Running:
+            if self.check_events(self.level):
+                self.switch_sound()
+                return
+            self.t.repaint()
+            self.clock.tick(60)
+            pygame.display.update()
+            
     def Level(self):
         while self.Running:
             if self.check_events(self.level):
