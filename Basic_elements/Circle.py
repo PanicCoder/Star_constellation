@@ -5,7 +5,7 @@ from Kompositum.BasicElement import BasicElement
 
 class Circle(BasicElement):
 
-    def __init__(self, pos_, radius_:int, color_, reactive_:bool, key_:str or None = "",action_:str or None = None, moveable_:bool or None = False ) -> None:
+    def __init__(self, pos_, radius_:int, color_, reactive_:bool, key_:str or None = "",action_:str or None = None, moveable_:bool or None = False, thickness_:int or None = 0) -> None:
 
         #X and Y Position on the surface
         self.key = key_
@@ -13,6 +13,7 @@ class Circle(BasicElement):
         self.radius = radius_
         self.reactive = reactive_
         self.moveable = moveable_
+        self.thickness = thickness_
         self.color = color_
         self.action = action_
         self.render = True
@@ -22,7 +23,7 @@ class Circle(BasicElement):
 
     def draw(self, r:bool or None = True) -> None:
         if r:
-            pygame.draw.circle(pygame.display.get_surface(),self.color,self.pos,self.radius,0)
+            pygame.draw.circle(pygame.display.get_surface(), self.color,self.pos,self.radius,self.thickness)
     
     def mvdraw(self, inter:pygame.Surface,r:bool or None = True) -> None:
         if r:

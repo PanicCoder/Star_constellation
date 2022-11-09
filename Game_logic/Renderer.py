@@ -1,4 +1,3 @@
-from dis import Instruction
 from typing import Callable
 import pygame
 import json
@@ -42,12 +41,12 @@ class Game_Render(Lv):
         self.Line_in_use.update_pos(self.Star_in_use.get_pos(),pygame.mouse.get_pos())
 
     def load_json(self,path):
-        file = open(path)
+        file = open(path, 'rb')
         data = json.load(file)
         file.close()
         positions = []
-        text = str(data["Explanation_text"][0]["text"])
-        l_name = data["Explanation_text"][0]["Latin_name"]
+        text = str(data["Explanation_text"][0]["Mythologie: "])
+        l_name = data["Explanation_text"][0]["lateinischer Name: "]
         latin_name = f" (lat.: {l_name})"
         content = data["constellation"][0]["constellation_name"]
         headline = self.create_Headline(content,int(70*self.mt))
@@ -132,13 +131,24 @@ class Game_Render(Lv):
             if element in h_list:
                 if con in self.connected_stars or con[::-1] in self.connected_stars:
                     element.text.change_color((12,255,23))
+                    element.ring.color = (12, 255, 23)
+                    element.ring.reactive = True
                 else:
                     element.text.change_color((255, 255, 0))
+                    element.ring.color = (255, 255, 0)
+                    element.ring.reactive = True
+                    
             else:
                 if con in self.connected_stars or con[::-1] in self.connected_stars:
                     element.text.change_color((255,0,0))
+                    element.ring.color = (255, 0, 0)
+                    self.Star_in_use.ring.color = (255, 0, 0)
+                    self.Star_in_use.ring.reactive = True
+                    element.ring.reactive = True
                 else:
-                    element.text.change_color((173,216,230))
+                    if element != self.Star_in_use:
+                        element.text.change_color((173,216,230))
+                        element.ring.reactive = False
         
     def repaint(self):
         self.list.repaint()
@@ -205,6 +215,7 @@ class Game_Render(Lv):
                 #self.unrender_instructions()
                 for indx in range(self.star_count):
                     self.list.get_element_by_key(f"Star_{indx+1}").text.change_color((173,216,230))
+                    self.list.get_element_by_key(f"Star_{indx+1}").ring.reactive = False
             return True  
         self.finished = False  
         return False
@@ -222,14 +233,42 @@ class Explanation_text(Lv):
         self.texts:list = []
         self.images:list = []
         self.all_lists = [self.images, self.buttons, self.texts]
+        self.tag_list = ["Wo/Wann?: ","Nachbarsternbilder: ", "lateinischer Name: ", "Mythologie: "]
         self.intermediate:pygame.Surface = None
         self.inter_height = 0
         self.name = name_
         self.scroll_y = 0
+        self.create()
     
     def create(self):
-        self.screen.fill((0,0,0))
-        
+        data = self.load_json(self.get_file_path(str(self.name)+'.json'))
+        self.images.append(self.set_background(self.get_file_path("E_Text.jpg")))
+        self.images.append(Image((self.screen.get_width()-(175*self.mx),self.screen.get_height()-150*self.my),self.get_file_path("star_logo.png"),(125*self.mx,125*self.my),True,"Star_logo","STARS"))
+        con_img = Image((self.screen.get_width()-505*self.mx,25*self.my),self.get_file_path(f"{self.name}.png"),(480*self.mx,300*self.my),False,"con_img")
+        self.images.append(con_img)
+        tb_text_size = self.get_text_size(self.tag_list[2],int(35*self.mt),"arial")
+        bt = Buttons((25,50),(tb_text_size[0]+45,tb_text_size[1]+10),(194, 194, 214),False,f"Bt_{self.tag_list[0]}",(0,0,0),self.tag_list[0],moveable_=True).add_text(self.tag_list[0],35,"arial")
+        self.buttons.append(bt)
+        text = data["Explanation_text"][0][self.tag_list[0]]
+        self.texts += self.format_text(text,[con_img.get_pos()[0]-bt.pos[0],800*self.my],int(30*self.mt),[bt.pos[0],bt.pos[1]+10*self.my+bt.dimensions[1]],"arial",(0,0,0))
+        for tag in self.tag_list[1:]:
+            button = Buttons((25,self.texts[-1].get_pos()[1]+tb_text_size[1]+30),(tb_text_size[0]+45,tb_text_size[1]+10),(194, 194, 214),False,f"Bt_{tag}",(0,0,0),tag,moveable_=True).add_text(tag,35,"arial")
+            self.buttons.append(button)
+            text = data["Explanation_text"][0][tag]
+            self.texts += self.format_text(text,[con_img.get_pos()[0]-button.pos[0],800*self.my],int(30*self.mt),[button.pos[0],button.pos[1]+10*self.my+button.dimensions[1]],"arial",(0,0,0))
+        self.inter_height = self.texts[-1].get_pos()[1]+tb_text_size[1]+600*self.my
+        self.buttons += self.create_side_bar(self.inter_height)
+        text_size = self.get_text_size(self.name,int(40*self.mt),"arial")
+        self.texts.append(Text(self.name,(con_img.get_pos()[0]+(con_img.scale[0]/2)-text_size[0]/2, con_img.get_pos()[1]+con_img.scale[1]+20*self.my),(194, 194, 214),pygame.font.SysFont("arial",40),"con_text"))
+        self.intermediate = pygame.Surface((self.screen.get_width(), self.screen.get_height()+self.inter_height),pygame.SRCALPHA)
+
+
+    def load_json(self,path):
+        file = open(path, 'rb')
+        data = json.load(file)
+        file.close()
+        return data
+
     def repaint(self):
         super().repaint(self.all_lists, self.intermediate, self.scroll_y)
         self.screen.blit(self.intermediate, (0,self.scroll_y))
@@ -279,12 +318,12 @@ class Game_Lobby(Lv):
         self.inter_height = last_button.get_pos()[1]+last_button.dimensions[1]+150*self.my
         for elements_images in images:
             self.images.append(elements_images)
-        self.buttons += self.create_side_bar()
+        self.buttons += self.create_side_bar(self.inter_height)
         bindx = str(self.table_contants.index("Level"))
         button = self.element_by_key(self.buttons,f"{len(self.table_contants)}Tb{bindx}") 
         text_s = pygame.font.SysFont("arial",int(30*self.mt)).size(self.level_name)
         self.texts.append(Text(self.level_name,(button.pos[0]+button.dimensions[0]/2-text_s[0]/2,button.pos[1]+button.dimensions[1]-(text_s[1]+5)),(0,0,0),pygame.font.SysFont("arial",int(30*self.mt)),"Level_text",moveable_=True))
-        self.intermediate = pygame.Surface((self.element_by_key(self.images,"Background").image.get_width(), self.screen.get_height()+self.inter_height),pygame.SRCALPHA)
+        self.intermediate = pygame.Surface((self.screen.get_width(), self.screen.get_height()+self.inter_height),pygame.SRCALPHA)
 
     def change_level_name(self, new_level_name:str):
         bindx = str(self.table_contants.index("Level"))
@@ -348,8 +387,8 @@ class Level(Lv):
         for elements in table:
             self.buttons.append(elements)
         last_button = self.element_by_key(self.buttons,f"{len(texts)}Tb{len(texts)-1}")
-        self.buttons += self.create_side_bar()
         self.inter_height = last_button.get_pos()[1]+last_button.dimensions[1]+150*self.my
+        self.buttons += self.create_side_bar(self.inter_height)
         self.intermediate = pygame.Surface((self.element_by_key(self.images,"Background").image.get_width(), self.screen.get_height()+self.inter_height),pygame.SRCALPHA)
         
     def repaint(self):
@@ -381,13 +420,13 @@ class Settings(Lv):
 
     def create(self):
         Headline = self.create_Headline("Settings",int(100*self.mt))
-        self.list.add_element_at_end(Headline[0])
         self.list.add_element_at_end(Headline[1])
+        self.list.add_element_at_end(Headline[0])
         self.list.add_element(self.create_shutdown_button())
         self.list.add_element(self.set_background(self.get_file_path("Settings.png")))
         
         actions = ["fullscreen","background_music","sound_effects"]
-        table = self.create_table(len(actions),(Headline[0].pos),(1000,75),[(75,100),(500,0)],Headline[2],(255,105,200),(255,105,200),False,["Fullscreen","Music","Sound_effects"],40,"arial",actions,text_pos="left",transparence=0.5)
+        table = self.create_table(len(actions),(Headline[0].pos),(1000,75),[(75,100),(500,0)],Headline[2],(255,105,200),(255,105,200),False,["Fullscreen","Music","Sound effects"],40,"arial",actions,text_pos="left",transparence=0.5)
         for indx,buttons in enumerate(table):
             self.list.add_element_at_end(buttons)
             t_switch = self.create_toggle_switch(buttons,(0,0,0),(255,0,0),True,actions[indx])
@@ -396,7 +435,7 @@ class Settings(Lv):
             if self.settings[t_switch[-1].get_action()]:  
                 self.flip_switch_state(t_switch[-1], t_switch[0])
         actions2 =["volume_b","volume_e"]
-        table2 = self.create_table(len(actions2),(Headline[1].pos[0],self.list.get_element_by_key(f"{str(len(actions))}Tb{str(len(actions)-1)}").pos[1]),(1000,75),[(75,100),(500,0)],Headline[2],(255,105,200),(255,105,200),False,["Music_volume","Sound_effect_volume"],40,"arial",["volume_b","volume_e"],"left",0.5)
+        table2 = self.create_table(len(actions2),(Headline[1].pos[0],self.list.get_element_by_key(f"{str(len(actions))}Tb{str(len(actions)-1)}").pos[1]),(1000,75),[(75,100),(500,0)],Headline[2],(255,105,200),(255,105,200),False,["Music volume","Soundeffect volume"],40,"arial",["volume_b","volume_e"],"left",0.5)
         for indx,buttons in enumerate(table2):
             percentage = self.settings[actions2[indx]]
             self.list.add_element_at_end(buttons)

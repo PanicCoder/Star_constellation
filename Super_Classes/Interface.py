@@ -77,7 +77,7 @@ class Level(Screen):
         under_line.moveable = moveable
         return (caption, under_line,text_size)
     
-    def format_text(self,content_:str,text_dimensions:tuple, size:int, pos, font: str or None ="arial", color:tuple or None = (255,255,255)) -> list:
+    def format_text(self,content_:str,text_dimensions:tuple, size:int, pos:list, font: str or None ="arial", color:tuple or None = (255,255,255)) -> list:
         content = content_.split(" ")
         text_list = []
         stop = False
@@ -96,7 +96,7 @@ class Level(Screen):
                     word_text+=content[0]
                     
                     stop = True
-            text_list.append(Text(word_text,tuple(pos),color,pygame.font.SysFont(font,size),"Textline"+str(i)))
+            text_list.append(Text(word_text,tuple(pos),color,pygame.font.SysFont(font,size),"Textline"+str(i),moveable_=True))
             pos[1] += self.get_text_size(word_text,size,font)[1]+10*self.my       
         return text_list
 
@@ -156,8 +156,9 @@ class Level(Screen):
         space = 10 if minigate_space else 0
         return Buttons((caption.pos[0],caption.pos[1]+text_size[1]-space),(text_size[0],4),color,False,"Ul"+caption.content)
 
-    def create_side_bar(self):
-        bar_dim = (30,70)
+    def create_side_bar(self, h_height):
+        factor = self.screen.get_height()/(self.screen.get_height()+h_height)
+        bar_dim = (30,self.screen.get_height()*factor)
         bar = Buttons((self.screen.get_width()-bar_dim[0],0),(bar_dim[0],self.screen.get_height()),(115,147,179),False,"Sb1",transparent_=0.6)
         move_rec = Buttons((self.screen.get_width()-bar_dim[0], 0), bar_dim,(0,0,0),True,"Sb2",(55,55,55),action_ = -1,transparent_=0.6)
         return [bar,move_rec]
@@ -171,5 +172,9 @@ class Level(Screen):
 
     def get_text_size(self, content:str, font_size:int, font:str) -> tuple[int,int]:
         return pygame.font.SysFont(font,font_size).size(content)
+    
+    def get_image_size(self, img_name:str) -> tuple[int,int]:
+        img = pygame.image.load(self.get_file_path(img_name))
+        return img.get_rect().size
 
 

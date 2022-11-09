@@ -103,7 +103,8 @@ class Engine(lv):
                         if self.r.connected_stars:
                             id = self.r.connected_stars[-1]
                             if id in self.r.Instructions:
-                                self.r.update_instroctions(id)
+                                #self.r.update_instroctions(id)
+                                pass
                             del self.r.connected_stars[-1]
                             self.r.list.delete_element(f"Line Star_{id[0]}-Star_{id[1]}")
                             self.r.set_Star_to_use(f"Star_{id[0]}")
@@ -114,7 +115,6 @@ class Engine(lv):
                             self.r.list.get_element_by_key("Background").change_image(self.get_file_path("Stars.png"))
                         self.r.update_line_in_use()
                         self.freeze = False
-                            
 
                     #only triggers if the keys 0-9 are pressed on the keyboard
                     inp = event.key-48
@@ -141,7 +141,7 @@ class Engine(lv):
                                 
                             self.r.set_Star_to_use(self.r.list.get_element_by_key(f"Star_{indx}").get_key())
                         self.r.update_line_in_use()
-            if object_type == Game_Lobby or object_type == Level:
+            if object_type != Game_Render or object_type != Settings:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     #go up
                     if event.button == 4: object.scroll_y = min(object.scroll_y + object.inter_height/80, 0)
@@ -180,7 +180,7 @@ class Engine(lv):
                 self.Status[3] = False
 
             elif self.Status[4]:
-                self.Explanation_text()
+                self.Ex_text()
                 self.Status[4] = False
             else:
                 self.Lobby()
@@ -220,12 +220,14 @@ class Engine(lv):
                 self.switch_sound()
                 return
             exit = self.check_events(self.r)
+            collision = self.r.check_collision()
+            if collision[0] and pygame.mouse.get_pressed()[0]:
+                if collision[1].get_key() == "Text_logo":
+                    self.Status[4] = True
+                    self.Status[1] = False
+                    return
             if not self.freeze:
-                collision = self.r.check_collision()
                 if collision[0] and pygame.mouse.get_pressed()[0]:
-                    if collision[1].get_key() == "Text_logo":
-                        self.Status[4] = True
-                        return
                     self.r.Lock_line(self.r.list.get_element_by_key(collision[1].get_key()))
                     if self.settings["sound_effects"]:
                         pygame.mixer.Sound.set_volume(self.sound_effects["click"],0.1)
@@ -243,11 +245,20 @@ class Engine(lv):
             pygame.display.update()
             self.clock.tick(60)
     
-    def Explanation_text(self):
+    def Ex_text(self):
         while self.Running:
-            if self.check_events(self.level):
+            if self.check_events(self.t):
                 self.switch_sound()
                 return
+            collision = self.t.check_collision()
+            if collision[0] and pygame.mouse.get_pressed()[0]:
+                if collision[1].get_key() == "Star_logo":
+                    self.Status[1] = True
+                    self.Status[4] = False
+                    return
+                elif collision[1].get_key() == "Sb2":  
+                        self.t.scroll_y = -abs((pygame.mouse.get_pos()[1] / self.screen.get_height())*(self.t.inter_height-self.screen.get_height()))
+            self.t.update_sidebar_slider()
             self.t.repaint()
             self.clock.tick(60)
             pygame.display.update()
@@ -268,6 +279,7 @@ class Engine(lv):
                     else:
                         self.level_name = self.Level_names[collision[1].get_action()]
                         self.l.change_level_name(self.level_name)
+                        self.t = Explanation_text(self.level_name)
                         self.return_flag = True
                         return
                 else:
