@@ -8,6 +8,6 @@ Mit diesem Programm kann man verschiedene Sternbilder im "malen nach Zahlen" ver
 #
 Zu jedem Sternbildet findet man zudem noch eine kurze Erklärungsseite über Themen wie die dahintersteckende Mythologie, wo und wann diese Sternbilder zu sehen sind und noch vieles mehr
 
-[Klicke hier](https://github.com/PanicCoder/Star_constellation/releases/tag/v.1)_, um das Programm herunterzuladen._
-
 ![E_text](https://user-images.githubusercontent.com/89604800/205953457-566ecc1b-b4b7-4a2d-938b-7a3b72decc58.png)
+#
+[Klicke hier](https://github.com/PanicCoder/Star_constellation/releases/tag/v.1)_, um das Programm herunterzuladen._
