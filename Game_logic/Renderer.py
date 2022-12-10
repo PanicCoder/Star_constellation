@@ -46,7 +46,7 @@ class Game_Render(Lv):
         file.close()
         positions = []
         text = str(data["Explanation_text"][0]["Mythologie: "])
-        l_name = data["Explanation_text"][0]["lateinischer Name: "]
+        l_name = data["Explanation_text"][0]["Lateinischer Name: "]
         latin_name = f" (lat.: {l_name})"
         content = data["constellation"][0]["constellation_name"]
         headline = self.create_Headline(content,int(70*self.mt))
@@ -233,7 +233,7 @@ class Explanation_text(Lv):
         self.texts:list = []
         self.images:list = []
         self.all_lists = [self.images, self.buttons, self.texts]
-        self.tag_list = ["Wo/Wann?: ","Nachbarsternbilder: ", "lateinischer Name: ", "Mythologie: "]
+        self.tag_list = ["Wo/Wann?: ","Nachbarsternbilder: ", "Lateinischer Name: ", "Mythologie: "]
         self.intermediate:pygame.Surface = None
         self.inter_height = 0
         self.name = name_
@@ -242,24 +242,24 @@ class Explanation_text(Lv):
     
     def create(self):
         data = self.load_json(self.get_file_path(str(self.name)+'.json'))
-        self.images.append(self.set_background(self.get_file_path("E_Text.jpg")))
+        self.images.append(self.set_background(self.get_file_path("E_text.png")))
         self.images.append(Image((self.screen.get_width()-(175*self.mx),self.screen.get_height()-150*self.my),self.get_file_path("star_logo.png"),(125*self.mx,125*self.my),True,"Star_logo","STARS"))
         con_img = Image((self.screen.get_width()-505*self.mx,25*self.my),self.get_file_path(f"{self.name}.png"),(480*self.mx,300*self.my),False,"con_img")
         self.images.append(con_img)
-        tb_text_size = self.get_text_size(self.tag_list[2],int(35*self.mt),"arial")
-        bt = Buttons((25,50),(tb_text_size[0]+45,tb_text_size[1]+10),(194, 194, 214),False,f"Bt_{self.tag_list[0]}",(0,0,0),self.tag_list[0],moveable_=True).add_text(self.tag_list[0],35,"arial")
-        self.buttons.append(bt)
+        first_text = Text(self.tag_list[0],(25,50),(0,0,0),pygame.font.SysFont("Juana",50),"e_headline_1",True)
+        self.texts.append(first_text) 
+        h_t_size = first_text.get_size()
         text = data["Explanation_text"][0][self.tag_list[0]]
-        self.texts += self.format_text(text,[con_img.get_pos()[0]-bt.pos[0],800*self.my],int(30*self.mt),[bt.pos[0],bt.pos[1]+10*self.my+bt.dimensions[1]],"arial",(0,0,0))
+        self.texts += self.format_text(text,[con_img.get_pos()[0]-first_text.get_pos()[0],800*self.my],int(30*self.mt),[first_text.get_pos()[0]+20+self.mx,first_text.get_pos()[1]+20*self.my+h_t_size[1]],"Times New Roman",(255,255,255))
         for tag in self.tag_list[1:]:
-            button = Buttons((25,self.texts[-1].get_pos()[1]+tb_text_size[1]+30),(tb_text_size[0]+45,tb_text_size[1]+10),(194, 194, 214),False,f"Bt_{tag}",(0,0,0),tag,moveable_=True).add_text(tag,35,"arial")
-            self.buttons.append(button)
+            headline = Text(tag,(25,self.texts[-1].get_pos()[1]+self.texts[1].get_size()[1]+30*self.my),(0,0,0),pygame.font.SysFont("Juana",50),f"{tag}_headline",True)
+            self.texts.append(headline)
             text = data["Explanation_text"][0][tag]
-            self.texts += self.format_text(text,[con_img.get_pos()[0]-button.pos[0],800*self.my],int(30*self.mt),[button.pos[0],button.pos[1]+10*self.my+button.dimensions[1]],"arial",(0,0,0))
-        self.inter_height = self.texts[-1].get_pos()[1]+tb_text_size[1]+600*self.my
+            self.texts += self.format_text(text,[con_img.get_pos()[0]-headline.get_pos()[0],800*self.my],int(30*self.mt),[headline.get_pos()[0]+20*self.mx,headline.get_pos()[1]+15*self.my+self.texts[-1].get_size()[1]],"Times New Roman",(255,255,255))
+        self.inter_height = self.texts[-1].get_pos()[1]+h_t_size[1]+100*self.my
         self.buttons += self.create_side_bar(self.inter_height)
-        text_size = self.get_text_size(self.name,int(40*self.mt),"arial")
-        self.texts.append(Text(self.name,(con_img.get_pos()[0]+(con_img.scale[0]/2)-text_size[0]/2, con_img.get_pos()[1]+con_img.scale[1]+20*self.my),(194, 194, 214),pygame.font.SysFont("arial",40),"con_text"))
+        text_size = self.get_text_size(self.name,int(40*self.mt),"Times New Roman")
+        self.texts.append(Text(self.name,(con_img.get_pos()[0]+(con_img.scale[0]/2)-text_size[0]/2, con_img.get_pos()[1]+con_img.scale[1]+20*self.my),(194, 194, 214),pygame.font.SysFont("Times New Roman",40),"con_text"))
         self.intermediate = pygame.Surface((self.screen.get_width(), self.screen.get_height()+self.inter_height),pygame.SRCALPHA)
 
 
@@ -299,7 +299,7 @@ class Game_Lobby(Lv):
         self.texts:list = []
         self.images:list = []
         self.all_lists = [self.images, self.buttons, self.texts]
-        self.table_contants = ["Play","Continue","Level","Settings"]
+        self.table_contants = ["Spielen","Fortsetzen","Level","Einstellungen", "Credits"]
         self.intermediate:pygame.Surface = None
         self.inter_height = 0
         self.level_name = name
@@ -374,16 +374,16 @@ class Level(Lv):
         self.create()
 
     def create(self):
-        Headlilne = self.create_Headline("Level",int(100*self.mt), moveable=True)
-        self.texts.append(Headlilne[0])
-        self.buttons.append(Headlilne[1])
+        Headline = self.create_Headline("Level",int(100*self.mt), moveable=True)
+        self.texts.append(Headline[0])
+        self.buttons.append(Headline[1])
         self.images.append(self.set_background(self.get_file_path("Level.png")))
         self.images.append(self.create_shutdown_button())
         texts = []
         for file in next(os.walk(self.get_folder_path("Starfiles")))[2]:
             texts.append(file.split(".")[0])
             texts.sort()
-        table = self.create_table(len(texts),Headlilne[0].pos,(500,125),[(75,150),(250,0)],Headlilne[2],(7,45,99),(34,59,112),True,texts,50,"arial",[i for i in range(len(texts))],moveable=True)
+        table = self.create_table(len(texts),Headline[0].pos,(500,125),[(75,150),(250,0)],Headline[2],(7,45,99),(34,59,112),True,texts,50,"arial",[i for i in range(len(texts))],moveable=True)
         for elements in table:
             self.buttons.append(elements)
         last_button = self.element_by_key(self.buttons,f"{len(texts)}Tb{len(texts)-1}")
@@ -419,14 +419,14 @@ class Settings(Lv):
         self.create()
 
     def create(self):
-        Headline = self.create_Headline("Settings",int(100*self.mt))
+        Headline = self.create_Headline("Einstellungen",int(100*self.mt))
         self.list.add_element_at_end(Headline[1])
         self.list.add_element_at_end(Headline[0])
         self.list.add_element(self.create_shutdown_button())
         self.list.add_element(self.set_background(self.get_file_path("Settings.png")))
         
         actions = ["fullscreen","background_music","sound_effects"]
-        table = self.create_table(len(actions),(Headline[0].pos),(1000,75),[(75,100),(500,0)],Headline[2],(255,105,200),(255,105,200),False,["Fullscreen","Music","Sound effects"],40,"arial",actions,text_pos="left",transparence=0.5)
+        table = self.create_table(len(actions),(Headline[0].pos),(1000,75),[(75,100),(500,0)],Headline[2],(255,105,200),(255,105,200),False,["Vollbild","MusiK","Soundeffekte"],40,"arial",actions,text_pos="left",transparence=0.5)
         for indx,buttons in enumerate(table):
             self.list.add_element_at_end(buttons)
             t_switch = self.create_toggle_switch(buttons,(0,0,0),(255,0,0),True,actions[indx])
@@ -435,7 +435,7 @@ class Settings(Lv):
             if self.settings[t_switch[-1].get_action()]:  
                 self.flip_switch_state(t_switch[-1], t_switch[0])
         actions2 =["volume_b","volume_e"]
-        table2 = self.create_table(len(actions2),(Headline[1].pos[0],self.list.get_element_by_key(f"{str(len(actions))}Tb{str(len(actions)-1)}").pos[1]),(1000,75),[(75,100),(500,0)],Headline[2],(255,105,200),(255,105,200),False,["Music volume","Soundeffect volume"],40,"arial",["volume_b","volume_e"],"left",0.5)
+        table2 = self.create_table(len(actions2),(Headline[1].pos[0],self.list.get_element_by_key(f"{str(len(actions))}Tb{str(len(actions)-1)}").pos[1]),(1000,75),[(75,100),(500,0)],Headline[2],(255,105,200),(255,105,200),False,["Musik Lautstärke","Soundeffekt Lautstärke"],40,"arial",["volume_b","volume_e"],"left",0.5)
         for indx,buttons in enumerate(table2):
             percentage = self.settings[actions2[indx]]
             self.list.add_element_at_end(buttons)
@@ -464,7 +464,65 @@ class Settings(Lv):
     def resize(self) -> Callable:
         self.__init__(self.settings)
         return self
+
+class Credits(Lv):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.id = 5
+        self.buttons:list = []
+        self.images = []
+        self.texts = [] 
+        self.all_lists = [self.images, self.buttons, self.texts]
+        self.intermediate:pygame.Surface = None
+        self.inter_height = 0
+        self.scroll_y = 0
+        self.create()
     
+    def create(self):
+        Headline = self.create_Headline("Credits", int(100*self.mt), moveable=True)
+        self.texts.append(Headline[0])
+        self.buttons.append(Headline[1])
+        self.images.append(self.set_background(self.get_file_path("Credits.jpg")))
+        self.images.append(self.create_shutdown_button())
+        data = self.load_json(self.get_file_path("credits.json"))
+        text = data["credits"][0]["text"]
+        self.texts += self.format_text(text,[self.screen.get_width()-600*self.mx,8000*self.my],int(30*self.mt),[300*self.mx,Headline[1].get_pos()[1]+50+self.my],"Luminari",(215,215,215))
+        self.inter_height = self.texts[-1].get_pos()[1]+self.get_text_size(self.texts[-1].content,int(30*self.mt),"arial")[1]+self.screen.get_height()
+        self.intermediate = pygame.Surface((self.element_by_key(self.images,"Background").image.get_width(), self.screen.get_height()+self.inter_height),pygame.SRCALPHA)
+
+    def load_json(self,path):
+        file = open(path, 'rb')
+        data = json.load(file)
+        file.close()
+        return data
+
+    def move_screen(self):
+        if -(self.inter_height-self.screen.get_height()) == self.scroll_y:
+            self.scroll_y = 0
+            self.repaint()
+            pygame.display.update()
+            pygame.time.wait(500)
+        else:
+            self.scroll_y = max(self.scroll_y - 1, -(self.inter_height-self.screen.get_height()))
+
+    def repaint(self):
+        super().repaint(self.all_lists, self.intermediate, self.scroll_y)
+        self.screen.blit(self.intermediate, (0, self.scroll_y))
+    
+    def restore_original_color(self):
+        super().restore_color(self.all_lists)
+
+    def check_collision(self) -> tuple[bool,Callable]:
+        return super().check_collision(self.all_lists)
+    
+    def update_sidebar_slider(self):
+        pass
+        #super().update_sidebar_slider(self.element_by_key(self.buttons,"Sb2"), self.scroll_y, self.inter_height)
+    
+    def resize(self) -> Callable:
+        self.__init__()
+        return self
 
     
         

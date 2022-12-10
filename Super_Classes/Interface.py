@@ -63,7 +63,7 @@ class Level(Screen):
     def create_music(self, settings:dict) -> dict:
         sound_effects = {}
         pygame.mixer.music.load(self.get_file_path("Background_music.mp3"))
-        pygame.mixer.music.set_volume(settings["volume_b"])
+        pygame.mixer.music.set_volume(settings["volume_b"]/10)
         for file in next(os.walk(self.get_folder_path("Sound_effects")))[2]:
             sound_effects.update({file.split(".")[0]:pygame.mixer.Sound(self.get_file_path(file))})
             sound_effects[file.split(".")[0]].set_volume(settings["volume_e"])

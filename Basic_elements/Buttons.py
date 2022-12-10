@@ -77,14 +77,14 @@ class Buttons(Screen, BasicElement):
             return (self.mask.collidepoint(pos[0], pos[1]),self)
         return (False, self)
 
-    def add_text(self, text_:str, size_,font_name:str, orientation:str or None = "center") -> Callable:
+    def add_text(self, text_:str, size_,font_name:str, orientation:str or None = "center", color:tuple[int,int,int] or None = (0,0,0)) -> Callable:
         text_size = pygame.font.SysFont(font_name,int(size_*self.mt)).size(text_)
         if orientation == "center":
-            self.text.append(Text(text_,(self.pos[0]+self.dimensions[0]/2-text_size[0]/2,self.pos[1]+self.dimensions[1]/2-text_size[1]/2),(0,0,0),pygame.font.SysFont(font_name,int(size_*self.mt))))
+            self.text.append(Text(text_,(self.pos[0]+self.dimensions[0]/2-text_size[0]/2,self.pos[1]+self.dimensions[1]/2-text_size[1]/2),color,pygame.font.SysFont(font_name,int(size_*self.mt))))
         elif orientation == "left":
-            self.text.append(Text(text_,(self.pos[0]+25*self.mx,self.pos[1]+self.dimensions[1]/2-text_size[1]/2),(0,0,0),pygame.font.SysFont(font_name,int(size_*self.mt))))
+            self.text.append(Text(text_,(self.pos[0]+25*self.mx,self.pos[1]+self.dimensions[1]/2-text_size[1]/2),color,pygame.font.SysFont(font_name,int(size_*self.mt))))
         elif orientation == "right":
-            self.text.append(Text(text_,(self.pos[0]+self.dimensions[0]-text_size[0]-25*self.mx,self.pos[1]+self.dimensions[1]/2-text_size[1]/2),(0,0,0),pygame.font.SysFont(font_name,int(size_*self.mt))))
+            self.text.append(Text(text_,(self.pos[0]+self.dimensions[0]-text_size[0]-25*self.mx,self.pos[1]+self.dimensions[1]/2-text_size[1]/2),color,pygame.font.SysFont(font_name,int(size_*self.mt))))
         return self
 
     def get_pos(self) -> tuple[int,int]:

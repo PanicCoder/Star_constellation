@@ -19,8 +19,8 @@ class Engine(lv):
         pygame.display.set_icon(pygame.image.load(self.get_file_path("Icon.png")))
         self.old_dimensions = [pygame.display.get_window_size()]
 
-        #Current status of the game: Play,Continue,Level,Settings, Text
-        self.Status = [False,False,False,False, False]
+        #Current status of the game: Play,Continue,Level,Settings, Credits,Text
+        self.Status = [False,False,False,False, False,False]
         self.Level_names = []
         for file in next(os.walk(self.get_folder_path("Starfiles")))[2]:
             self.Level_names.append(file.split(".")[0])
@@ -41,9 +41,10 @@ class Engine(lv):
         self.r = Game_Render(self.level_name)
         self.l = Game_Lobby(self.level_name)
         self.t = Explanation_text(self.level_name)
+        self.c = Credits()
         self.level = Level()
         self.s = Settings(self.settings)
-        self.object_list = [self.r,self.l,self.level,self.s, self.t]
+        self.object_list = [self.r,self.l,self.level,self.s, self.c,self.t]
         self.clock = pygame.time.Clock()
         
     
@@ -141,7 +142,7 @@ class Engine(lv):
                                 
                             self.r.set_Star_to_use(self.r.list.get_element_by_key(f"Star_{indx}").get_key())
                         self.r.update_line_in_use()
-            if object_type != Game_Render or object_type != Settings:
+            if object_type != Game_Render and object_type != Settings:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     #go up
                     if event.button == 4: object.scroll_y = min(object.scroll_y + object.inter_height/80, 0)
@@ -178,10 +179,14 @@ class Engine(lv):
             elif self.Status[3]:
                 self.Settings()
                 self.Status[3] = False
-
+            
             elif self.Status[4]:
-                self.Ex_text()
+                self.Credits()
                 self.Status[4] = False
+
+            elif self.Status[5]:
+                self.Ex_text()
+                self.Status[5] = False
             else:
                 self.Lobby()
         pygame.quit()
@@ -223,7 +228,7 @@ class Engine(lv):
             collision = self.r.check_collision()
             if collision[0] and pygame.mouse.get_pressed()[0]:
                 if collision[1].get_key() == "Text_logo":
-                    self.Status[4] = True
+                    self.Status[5] = True
                     self.Status[1] = False
                     return
             if not self.freeze:
@@ -254,7 +259,7 @@ class Engine(lv):
             if collision[0] and pygame.mouse.get_pressed()[0]:
                 if collision[1].get_key() == "Star_logo":
                     self.Status[1] = True
-                    self.Status[4] = False
+                    self.Status[5] = False
                     return
                 elif collision[1].get_key() == "Sb2":  
                         self.t.scroll_y = -abs((pygame.mouse.get_pos()[1] / self.screen.get_height())*(self.t.inter_height-self.screen.get_height()))
@@ -338,4 +343,31 @@ class Engine(lv):
             self.s.repaint()
             pygame.display.update()
             self.clock.tick(60)
+    
+    def Credits(self):
+        self.c.scroll_y = 0
+        while self.Running:
+            if self.check_events(self.c):
+                self.switch_sound()
+                return
+            collision = self.c.check_collision()
+            if collision[0]:
+                if pygame.mouse.get_pressed()[0]:
+                    if collision[1].get_key() == "Sb2":  
+                        self.c.scroll_y = -abs((pygame.mouse.get_pos()[1] / self.screen.get_height())*(self.c.inter_height-self.screen.get_height()))
+                    elif collision[1].get_key() == "Shutdown_Button":
+                        self.Running = False
+                        return
+                    else:
+                        self.return_flag = True
+                        return
+                else:
+                    collision[1].update_color_reactive(True)
+            else:
+                self.c.restore_original_color()
+            self.c.move_screen()
+            self.c.update_sidebar_slider()
+            self.c.repaint()
+            self.clock.tick(60)
+            pygame.display.update()
             
