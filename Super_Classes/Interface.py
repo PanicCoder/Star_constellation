@@ -82,6 +82,8 @@ class Level(Screen):
         text_list = []
         stop = False
         i = 0
+        if len(content) == 1:
+            return [Text(content,tuple(pos),color,pygame.font.SysFont(font,size),"Textline"+str(i),moveable_=True)]
         while(not stop):
             i+=1
             word_sizes = self.get_text_size(content[1]+" ",size,font)[0]

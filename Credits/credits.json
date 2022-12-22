@@ -1,7 +1,65 @@
 {
     "credits":[
         {
-            "text": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."
+           "text": "Vielen Dank an alle die mich bei meinem Projekt unterstüzt haben :)"
         }
+    ],
+    "lobby":[
+        {
+            "description": "Hintergrundbild für das Hauptmenü:",
+            "link": "https://www.pinterest.de/pin/26529085295597686/"
+        }
+    ],
+    "level":[
+        {
+            "description": "Hintergrundbild für die Levelauswahl:",
+            "link": "https://www.reddit.com/r/wallpaper/comments/cjmdyq/ridge_2560_x_1440_inspired_by/"
+        } 
+    ],
+    "settings":[
+        {
+            "description": "Hintergrundbild für die Einstellungen:",
+            "link": "https://i.redd.it/cb4m93pl0qm51.png"
+        } 
+    ],
+    "star":[
+        {
+            "description": "Hintergrundbild für das Spiel:",
+            "link": "https://www.pinterest.de/pin/26529085295597686/"
+        } 
+    ],
+    "star_finisched":[
+        {
+            "description": "Alle Sternbildzeichnungen sind von Stellarium:",
+            "link": "https://stellarium-web.org/"
+        } 
+    ],
+    "explenation":[
+        {
+            "description": "Hintergrundbild für die Erklärungen:",
+            "link": "https://www.reddit.com/r/wallpaper/comments/ryfkqp/mountain_1920x1080/"
+        } 
+    ],
+    "explenation_sources":[
+        {
+            "description": "Die Texte der Erklärung wie die zugehörigen Informationen sind von der Seite Astrokramkiste:",
+            "link": "https://astrokramkiste.de/sternbilder"
+        } 
+    ],
+    "sound":[
+        {
+            "description": "Musik und Soundeffekte:",
+            "link": "https://pixabay.com/de/sound-effects/",
+            "link2": "https://cdn.pixabay.com/download/audio/2022/01/12/audio_45cacdef8f.mp3?filename=both-of-us-14037.mp3"
+        } 
+    ],
+    "Icon":[
+        {
+            "description": "Iconbilder verwendet für das Spiel:",
+            "link": "https://www.pinterest.de/pin/388787380340702846/",
+            "link2": "https://p7.hiclipart.com/preview/296/182/460/computer-icons-shutdown-button-download-restart.jpg",
+            "link3": "https://upload.wikimedia.org/wikipedia/en/thumb/1/11/Fast_text.png/600px-Fast_text.png?20120226051332",
+            "link4": "https://www.citypng.com/public/uploads/preview/hd-purple-blue-neon-star-png-3162920216711t8vefb8s.png"
+        } 
     ]
 }

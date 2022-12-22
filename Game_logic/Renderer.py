@@ -487,8 +487,15 @@ class Credits(Lv):
         self.images.append(self.create_shutdown_button())
         data = self.load_json(self.get_file_path("credits.json"))
         text = data["credits"][0]["text"]
-        self.texts += self.format_text(text,[self.screen.get_width()-600*self.mx,8000*self.my],int(30*self.mt),[300*self.mx,Headline[1].get_pos()[1]+50+self.my],"Luminari",(215,215,215))
-        self.inter_height = self.texts[-1].get_pos()[1]+self.get_text_size(self.texts[-1].content,int(30*self.mt),"arial")[1]+self.screen.get_height()
+        self.texts.append(Text(text,[300*self.mx,Headline[1].get_pos()[1]+50+self.my],(0,0,0),pygame.font.SysFont("Luminari", int(40*self.mt)),"tx1",True))
+        for key in data:
+            if not key == "credits":
+                desc = data[key][0]["description"]
+                self.texts.append(Text(desc,[300*self.mx,self.texts[-1].get_pos()[1]+75*self.my],(0,0,0),pygame.font.SysFont("Luminari", int(40*self.mt)),f"tx{desc}",True))
+                for links in data[key][0]:
+                    if links[0:4] == "link":
+                        self.texts.append(Text(data[key][0][links],[300*self.mx,self.texts[-1].get_pos()[1]+50*self.my],(0,0,0),pygame.font.SysFont("Luminari", int(30*self.mt)),f"tx{links}",True))
+        self.inter_height = 2*self.screen.get_height() + self.texts[-1].get_pos()[0]+self.get_text_size(self.texts[-1].content,int(30*self.my),"Luminari")[1]
         self.intermediate = pygame.Surface((self.element_by_key(self.images,"Background").image.get_width(), self.screen.get_height()+self.inter_height),pygame.SRCALPHA)
 
     def load_json(self,path):

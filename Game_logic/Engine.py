@@ -96,7 +96,7 @@ class Engine(lv):
                         self.Status[i] = False 
                     return True
 
-                elif object_type == Game_Render:    
+                elif object_type == Game_Render or object_type == Credits:    
                     if event.key == pygame.K_RETURN:
                         self.freeze = not self.freeze
                     
@@ -365,7 +365,8 @@ class Engine(lv):
                     collision[1].update_color_reactive(True)
             else:
                 self.c.restore_original_color()
-            self.c.move_screen()
+            if not self.freeze:
+                self.c.move_screen()
             self.c.update_sidebar_slider()
             self.c.repaint()
             self.clock.tick(60)
