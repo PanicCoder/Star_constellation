@@ -2,10 +2,10 @@
   "settings": [
     {
       "fullscreen": false,
-      "background_music": false,
-      "sound_effects": false,
-      "volume_b": 0.9967,
-      "volume_e": 0.8233
+      "background_music": true,
+      "sound_effects": true,
+      "volume_b": 0.5033,
+      "volume_e": 0.4967
     }
   ]
 }

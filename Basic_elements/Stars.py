@@ -15,7 +15,8 @@ class Star(Circle):
     def draw(self):
         if(self.active):
             super().draw()
-            self.text.draw()
+            if self.text.get_render():
+                self.text.draw()
         if self.ring.reactive:
             self.ring.draw()
 

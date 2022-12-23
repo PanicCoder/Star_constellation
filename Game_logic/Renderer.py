@@ -150,7 +150,7 @@ class Game_Render(Lv):
                         element.text.change_color((173,216,230))
                         element.ring.reactive = False
         
-    def repaint(self):
+    def repaint(self):           
         self.list.repaint()
 
     def check_collision(self) -> tuple[bool,Callable]:
@@ -211,11 +211,14 @@ class Game_Render(Lv):
         if number_conections == count and len(self.connected_stars) == number_conections:
             if not self.finished:
                 self.Line_in_use.set_render()
-                self.list.get_element_by_key("Background").change_image(self.get_file_path(f"{self.name}.png"))
+                self.list.get_element_by_key("Background").change_image(self.get_file_path(f"{self.name}.png"))              
                 #self.unrender_instructions()
                 for indx in range(self.star_count):
-                    self.list.get_element_by_key(f"Star_{indx+1}").text.change_color((173,216,230))
-                    self.list.get_element_by_key(f"Star_{indx+1}").ring.reactive = False
+                    star = self.list.get_element_by_key(f"Star_{indx+1}")
+                    star.text.set_render()
+                    star.ring.reactive = False
+                    self.list.delete_element(f"Star_{indx+1}")
+                    self.list.add_element_at_end(star)
             return True  
         self.finished = False  
         return False

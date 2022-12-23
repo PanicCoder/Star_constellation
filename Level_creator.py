@@ -55,10 +55,10 @@ def save_to_json(name, id):
 
 if(__name__ == "__main__"):
     create_screen()
-    name = "Wasserman"
-    id = 5
-    image = pygame.image.load(lv.get_file_path(lv,"Wasserman.png"))
-    star = Star((500,500),10,0.5,True,1,"1","")
+    name = "Wasserschlange"
+    id = 11
+    image = pygame.image.load(lv.get_file_path(lv,str(name)+'.png'))
+    star = Star((500,500),20,0.5,True,1,"1","")
     screen = pygame.display.get_surface()
     star_list = []
     count_stars = 1
@@ -73,14 +73,14 @@ if(__name__ == "__main__"):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_TAB:
-                    star = Star((500,500),10,0.5,True, count_stars,f"{count_stars}","")
+                    star = Star((500,500),20,0.5,True, count_stars,f"{count_stars}","")
                     star.draw()    
 
                 if event.key == pygame.K_KP_PLUS:
-                    star.radius += 0.5
+                    star.radius += 1
                 
                 if event.key == pygame.K_KP_MINUS:
-                    star.radius -= 0.5
+                    star.radius -= 1
                 
                 if event.key == pygame.K_UP:
                     if star.bright - 0.05 < 0:
@@ -103,7 +103,7 @@ if(__name__ == "__main__"):
                     count_stars -=1
                     if count_stars < 0:
                         count_stars = 0
-                    star = Star((500,500),10, 0.5, True, count_stars, f"{count_stars}", "")
+                    star = Star((500,500),20, 0.5, True, count_stars, f"{count_stars}", "")
                     star_list = star_list[:-1]
                 
                 if event.key == pygame.K_RETURN:
@@ -113,7 +113,7 @@ if(__name__ == "__main__"):
             if pygame.mouse.get_pressed()[0]:
                     lock_star(star)
                     count_stars +=1
-                    star = Star((500,500),10, 0.1, True, count_stars, f"{count_stars}", "")
+                    star = Star((500,500),20, 0.5, True, count_stars, f"{count_stars}", "")
 
         screen.blit(pygame.transform.scale(image,(screen.get_width(),screen.get_height())),(0,0))
         star.draw()
